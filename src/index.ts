@@ -1,27 +1,29 @@
 /**
- * index module
+ * API Node.js Client
  */
-import * as purchaseNumberAuthService from './services/auth/purchaseNumberAuth.service';
-import * as seatInfoSyncService from './services/seat/seatInfoSync.service';
-import * as utilConstants from './util/constants';
-import * as utilEnums from './util/enums';
+import { mvtk, service, transporters } from './abstract';
+import ClientCredentialsClient from './auth/clientCredentialsClient';
+import OAuth2client from './auth/oAuth2client';
 
 /**
- * サービスモジュール群
+ * factory
+ * All object interfaces are here.
+ * 全てのオブジェクトのインターフェースはここに含まれます。
  */
-export namespace services {
-    export namespace auth {
-        export import purchaseNumberAuth = purchaseNumberAuthService;
-    }
-    export namespace seat {
-        export import seatInfoSync = seatInfoSyncService;
-    }
-}
+export import mvtk = mvtk;
+export import service = service;
+export import transporters = transporters;
 
 /**
- * ユーティリティモジュール群
+ * each OAuth2 clients
  */
-export namespace util {
-    export import enums = utilEnums;
-    export import constants = utilConstants;
+export namespace auth {
+    /**
+     * OAuth2 client using grant type 'client_credentials'
+     */
+    export class ClientCredentials extends ClientCredentialsClient { }
+    /**
+     * OAuth2 client using grant type 'authorization_code'
+     */
+    export class OAuth2 extends OAuth2client { }
 }
