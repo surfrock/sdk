@@ -8,8 +8,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- 認証クライアントを追加。
-
 ### Changed
 
 ### Deprecated
@@ -19,3 +17,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v1.0.0 - 2018-10-09
+### Added
+- ムビチケAPIをラッピングする形でファーストリリース。
