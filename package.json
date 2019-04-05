@@ -17,7 +17,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "check": "npm run tslint && nsp check",
+    "check": "npm run tslint",
     "clean": "rimraf ./lib \"npm-debug.log*\" ./docs ./coverage ./.nyc_output",
     "example": "http-server ./example",
     "doc": "echo \"implementing...\" && exit 0",
@@ -67,7 +67,6 @@
     "mocha": "^5.2.0",
     "moment": "^2.22.2",
     "nock": "^9.4.3",
-    "nsp": "^3.2.1",
     "nyc": "^12.0.2",
     "open": "0.0.5",
     "power-assert": "^1.6.1",
@@ -81,7 +80,7 @@
     "typescript": "^3.1.2"
   },
   "dependencies": {
-    "@movieticket/reserve-api-abstract-client": "^1.0.0",
+    "@movieticket/reserve-api-abstract-client": "^1.0.1",
     "debug": "^3.2.5",
     "http-status": "^1.2.0",
     "isomorphic-fetch": "^2.2.1"
