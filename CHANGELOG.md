@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- サービスにタイムアウト設定オプションを追加
+
 ### Deprecated
 
 ### Removed

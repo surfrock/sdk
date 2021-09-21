@@ -11,16 +11,22 @@ async function main() {
         scopes: [],
         state: ''
     });
-    const authService = new client.service.Auth({
-        endpoint: process.env.API_ENDPOINT,
-        auth: authClient
-    });
+    const authService = new client.service.Auth(
+        {
+            endpoint: process.env.API_ENDPOINT,
+            auth: authClient
+        },
+        {
+            timeout: 400
+        }
+    );
     const result = await authService.purchaseNumberAuth({
         kgygishCd: 'SSK000', //興行会社コード
         jhshbtsCd: client.mvtk.services.auth.purchaseNumberAuth.InformationTypeCode.All, //情報種別コード
         knyknrNoInfoIn: [
             {
                 knyknrNo: '3472695908', //購入管理番号
+                // knyknrNo: 'invalid', //購入管理番号
                 pinCd: '7648' // PINコード
             }
         ],
@@ -28,7 +34,8 @@ async function main() {
         stCd: '18', //サイトコード
         jeiYmd: '2017/02/16' //上映年月日
     });
-    console.log(result);
+    console.log(result.resultInfo.status);
+    console.log('success!');
 }
 
 main().catch(console.error);
