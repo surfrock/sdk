@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Changed
 
 - サービスにタイムアウト設定オプションを追加
+- update mvtk-reserve-service
+- surfrock/sdkとしてリニューアル
 
 ### Deprecated
 

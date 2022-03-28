@@ -1,16 +1,10 @@
 /**
  * API Node.js Client
  */
-import { mvtk, service, transporters } from './abstract';
+import { service, transporters } from './abstract';
 import ClientCredentialsClient from './auth/clientCredentialsClient';
 import OAuth2client from './auth/oAuth2client';
 
-/**
- * factory
- * All object interfaces are here.
- * 全てのオブジェクトのインターフェースはここに含まれます。
- */
-export import mvtk = mvtk;
 export import service = service;
 export import transporters = transporters;
 

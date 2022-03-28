@@ -1,4 +1,4 @@
 /**
  * Abstract API Client
  */
-export * from '@movieticket/reserve-api-abstract-client';
+export * from '@surfrock/abstract-sdk';

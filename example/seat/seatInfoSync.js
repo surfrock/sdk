@@ -11,14 +11,14 @@ async function main() {
         scopes: [],
         state: ''
     });
-    const seatService = new client.service.Seat({
+    const seatService = new client.service.seat.SeatService({
         endpoint: process.env.API_ENDPOINT,
         auth: authClient
     });
     const result = await seatService.seatInfoSync({
         kgygishCd: 'SSK000', //興行会社コード
-        yykDvcTyp: client.mvtk.services.seat.seatInfoSync.ReserveDeviceType.EntertainerSitePC, //予約デバイス区分
-        trkshFlg: client.mvtk.services.seat.seatInfoSync.DeleteFlag.False, //取消フラグ
+        yykDvcTyp: client.service.seat.factory.ReserveDeviceType.EntertainerSitePC, //予約デバイス区分
+        trkshFlg: client.service.seat.factory.DeleteFlag.False, //取消フラグ
         kgygishSstmZskyykNo: '118124', //興行会社システム座席予約番号
         kgygishUsrZskyykNo: '124', //興行会社ユーザー座席予約番号
         jeiDt: '2017/03/02 10:00:00', //上映日時

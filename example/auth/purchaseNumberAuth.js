@@ -11,18 +11,18 @@ async function main() {
         scopes: [],
         state: ''
     });
-    const authService = new client.service.Auth(
+    const authService = new client.service.auth.AuthService(
         {
             endpoint: process.env.API_ENDPOINT,
             auth: authClient
         },
         {
-            timeout: 400
+            timeout: 10000
         }
     );
     const result = await authService.purchaseNumberAuth({
         kgygishCd: 'SSK000', //興行会社コード
-        jhshbtsCd: client.mvtk.services.auth.purchaseNumberAuth.InformationTypeCode.All, //情報種別コード
+        jhshbtsCd: client.service.auth.factory.InformationTypeCode.All, //情報種別コード
         knyknrNoInfoIn: [
             {
                 knyknrNo: '3472695908', //購入管理番号
