@@ -279,7 +279,7 @@ export default class OAuth2client implements Auth {
      * access token and replays the unsuccessful request.
      * @param options Request options.
      */
-    public async fetch(url: string, options: RequestInit, expectedStatusCodes: number[]) {
+    public async fetch(url: string, options: RequestInit, requestOptions: transporters.IRequestOptions, expectedStatusCodes: number[]) {
         // Callbacks will close over this to ensure that we only retry once
         let retry = true;
 
@@ -296,7 +296,7 @@ export default class OAuth2client implements Auth {
                 }
 
                 (<any>options.headers).Authorization = `Bearer ${await this.getAccessToken()}`;
-                result = await this.makeFetch(url, options, expectedStatusCodes);
+                result = await this.makeFetch(url, options, requestOptions, expectedStatusCodes);
 
                 break;
             } catch (error) {
@@ -370,10 +370,12 @@ export default class OAuth2client implements Auth {
      * Assumes that all credentials are set correctly.
      */
     // tslint:disable-next-line:prefer-function-over-method
-    protected async makeFetch(url: string, options: RequestInit, expectedStatusCodes: number[]) {
+    protected async makeFetch(
+        url: string, options: RequestInit, requestOptions: transporters.IRequestOptions, expectedStatusCodes: number[]
+    ) {
         const transporter = new transporters.DefaultTransporter(expectedStatusCodes);
 
-        return transporter.fetch(url, options);
+        return transporter.fetch(url, options, requestOptions);
     }
 
     /**

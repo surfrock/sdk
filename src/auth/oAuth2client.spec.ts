@@ -459,7 +459,7 @@ describe('fetch()', () => {
 
         auth.credentials = { refresh_token: 'refresh-token-placeholder' };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]);
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [OK]);
         assert.equal('abc123', auth.credentials.access_token);
     });
 
@@ -478,7 +478,7 @@ describe('fetch()', () => {
             expiry_date: (new Date()).getTime() - 1000
         };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]);
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [OK]);
         assert.equal('abc123', auth.credentials.access_token);
 
     });
@@ -498,7 +498,7 @@ describe('fetch()', () => {
             expiry_date: (new Date()).getTime() + 1000
         };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]);
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [OK]);
         assert.equal('initial-access-token', auth.credentials.access_token);
     });
 
@@ -515,7 +515,7 @@ describe('fetch()', () => {
             refresh_token: 'refresh-token-placeholder'
         };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, [OK]);
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [OK]);
         assert.equal('initial-access-token', auth.credentials.access_token);
         assert(!scope.isDone());
     });
@@ -541,7 +541,7 @@ describe('fetch()', () => {
                 refresh_token: 'refresh-token-placeholder'
             };
 
-            await auth.fetch(`${API_ENDPOINT}/access`, { method: 'GET' }, [OK]).catch((err) => err);
+            await auth.fetch(`${API_ENDPOINT}/access`, { method: 'GET' }, {}, [OK]).catch((err) => err);
             assert.equal(auth.credentials.access_token, 'abc123');
             assert(scope.isDone());
         });
@@ -562,7 +562,7 @@ describe('fetch()', () => {
             });
             auth.credentials = { refresh_token: 'refresh-token-placeholder' };
 
-            await auth.fetch(`${API_ENDPOINT}/`, options, [OK]);
+            await auth.fetch(`${API_ENDPOINT}/`, options, {}, [OK]);
             assert.equal('abc123', auth.credentials.access_token);
         });
     });
