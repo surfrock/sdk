@@ -4,7 +4,7 @@
 import * as crypto from 'crypto';
 import * as createDebug from 'debug';
 import { BAD_REQUEST, FORBIDDEN, OK, UNAUTHORIZED } from 'http-status';
-import * as fetch from 'isomorphic-fetch';
+// import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
 import { Auth, transporters } from '../abstract';
@@ -12,6 +12,7 @@ import ICredentials from './credentials';
 import { ITokenPayload, LoginTicket } from './loginTicket';
 
 const debug = createDebug('mocoin-api-nodejs-client:auth:oAuth2client');
+export const DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS: number = 20000;
 
 export interface IGenerateAuthUrlOpts {
     scopes: string[];
@@ -145,9 +146,12 @@ export default class OAuth2client implements Auth {
 
         debug('fetching...', options);
 
-        return fetch(
+        // timeout設定(2022-12-03~)
+        return transporters.fetchWithTimeout(
+            // return fetch(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
-            options
+            options,
+            { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
             debug('response:', response.status);
             if (response.status !== OK) {
@@ -402,9 +406,12 @@ export default class OAuth2client implements Auth {
 
         debug('fetching...', options);
 
-        return fetch(
+        // timeout設定(2022-12-03~)
+        return transporters.fetchWithTimeout(
+            // return fetch(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
-            options
+            options,
+            { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
             debug('response:', response.status);
             if (response.status !== OK) {

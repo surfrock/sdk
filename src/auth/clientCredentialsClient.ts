@@ -1,10 +1,11 @@
 import * as createDebug from 'debug';
 import * as httpStatus from 'http-status';
-import * as fetch from 'isomorphic-fetch';
+// import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
+import { transporters } from '../abstract';
 import ICredentials from './credentials';
-import OAuth2client from './oAuth2client';
+import { default as OAuth2client, DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS } from './oAuth2client';
 
 const debug = createDebug('surfrock-sdk:auth');
 
@@ -57,9 +58,11 @@ export default class ClientCredentialsClient extends OAuth2client {
 
         debug('fetching...', options);
 
-        return fetch(
+        // timeout設定(2022-12-03~)
+        return transporters.fetchWithTimeout(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
-            options
+            options,
+            { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
             debug('response:', response.status);
             if (response.status !== httpStatus.OK) {
