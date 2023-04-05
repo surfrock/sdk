@@ -597,7 +597,7 @@ describe('verifyIdToken()', () => {
             aud: audience
         };
         const payLoadStr = JSON.stringify(payload);
-        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        const jwt = `${Buffer.from(envelopeStr, 'utf-8').toString('base64')}.${Buffer.from(payLoadStr, 'utf-8').toString('base64')}.xxxx`;
         auth.credentials = { id_token: jwt };
 
         const result = auth.verifyIdToken({ audience: audience });
@@ -615,7 +615,7 @@ describe('verifyIdToken()', () => {
             aud: audience
         };
         const payLoadStr = JSON.stringify(payload);
-        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}`;
+        const jwt = `${Buffer.from(envelopeStr).toString('base64')}.${Buffer.from(payLoadStr).toString('base64')}`;
         auth.credentials = { id_token: jwt };
 
         assert.throws(
@@ -636,7 +636,7 @@ describe('verifyIdToken()', () => {
             aud: audience
         };
         const payLoadStr = JSON.stringify(payload);
-        const jwt = `xxxx.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        const jwt = `xxxx.${Buffer.from(payLoadStr).toString('base64')}.xxxx`;
         auth.credentials = { id_token: jwt };
 
         assert.throws(
@@ -657,7 +657,7 @@ describe('verifyIdToken()', () => {
         //     aud: audience
         // };
         // const payLoadStr = JSON.stringify(payload);
-        const jwt = `${new Buffer(envelopeStr).toString('base64')}.xxxx.xxxx`;
+        const jwt = `${Buffer.from(envelopeStr).toString('base64')}.xxxx.xxxx`;
         auth.credentials = { id_token: jwt };
 
         assert.throws(
@@ -678,7 +678,7 @@ describe('verifyIdToken()', () => {
             aud: audience
         };
         const payLoadStr = JSON.stringify(payload);
-        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        const jwt = `${Buffer.from(envelopeStr).toString('base64')}.${Buffer.from(payLoadStr).toString('base64')}.xxxx`;
         auth.credentials = { id_token: jwt };
 
         assert.throws(
@@ -699,7 +699,7 @@ describe('verifyIdToken()', () => {
             aud: audience
         };
         const payLoadStr = JSON.stringify(payload);
-        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        const jwt = `${Buffer.from(envelopeStr).toString('base64')}.${Buffer.from(payLoadStr).toString('base64')}.xxxx`;
         auth.credentials = { id_token: jwt };
 
         assert.throws(
@@ -720,7 +720,7 @@ describe('verifyIdToken()', () => {
             aud: audience
         };
         const payLoadStr = JSON.stringify(payload);
-        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        const jwt = `${Buffer.from(envelopeStr).toString('base64')}.${Buffer.from(payLoadStr).toString('base64')}.xxxx`;
         auth.credentials = { id_token: jwt };
 
         assert.throws(
@@ -741,7 +741,7 @@ describe('verifyIdToken()', () => {
             aud: audience
         };
         const payLoadStr = JSON.stringify(payload);
-        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        const jwt = `${Buffer.from(envelopeStr).toString('base64')}.${Buffer.from(payLoadStr).toString('base64')}.xxxx`;
         auth.credentials = { id_token: jwt };
 
         assert.throws(
@@ -762,7 +762,7 @@ describe('verifyIdToken()', () => {
             aud: 'xxxx'
         };
         const payLoadStr = JSON.stringify(payload);
-        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        const jwt = `${Buffer.from(envelopeStr).toString('base64')}.${Buffer.from(payLoadStr).toString('base64')}.xxxx`;
         auth.credentials = { id_token: jwt };
 
         assert.throws(
@@ -783,7 +783,7 @@ describe('verifyIdToken()', () => {
             aud: 'xxxx'
         };
         const payLoadStr = JSON.stringify(payload);
-        const jwt = `${new Buffer(envelopeStr).toString('base64')}.${new Buffer(payLoadStr).toString('base64')}.xxxx`;
+        const jwt = `${Buffer.from(envelopeStr).toString('base64')}.${Buffer.from(payLoadStr).toString('base64')}.xxxx`;
         auth.credentials = { id_token: jwt };
 
         assert.throws(

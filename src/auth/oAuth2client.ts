@@ -4,7 +4,7 @@
 import * as crypto from 'crypto';
 import * as createDebug from 'debug';
 import { BAD_REQUEST, FORBIDDEN, OK, UNAUTHORIZED } from 'http-status';
-import * as fetch from 'isomorphic-fetch';
+// import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
 import { Auth, transporters } from '../abstract';
@@ -12,6 +12,7 @@ import ICredentials from './credentials';
 import { ITokenPayload, LoginTicket } from './loginTicket';
 
 const debug = createDebug('mocoin-api-nodejs-client:auth:oAuth2client');
+export const DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS: number = 20000;
 
 export interface IGenerateAuthUrlOpts {
     scopes: string[];
@@ -145,9 +146,12 @@ export default class OAuth2client implements Auth {
 
         debug('fetching...', options);
 
-        return fetch(
+        // timeout設定(2022-12-03~)
+        return transporters.fetchWithTimeout(
+            // return fetch(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
-            options
+            options,
+            { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
             debug('response:', response.status);
             if (response.status !== OK) {
@@ -181,18 +185,17 @@ export default class OAuth2client implements Auth {
     }
 
     public async refreshAccessToken(): Promise<ICredentials> {
-        if (this.credentials.refresh_token === undefined) {
+        const refreshTokenByCredentials = this.credentials.refresh_token;
+        if (typeof refreshTokenByCredentials !== 'string') {
             throw new Error('No refresh token is set.');
         }
 
-        return this.refreshToken(this.credentials.refresh_token)
-            .then((tokens) => {
-                tokens.refresh_token = this.credentials.refresh_token;
-                debug('setting credentials...', tokens);
-                this.credentials = tokens;
+        const tokens = await this.refreshToken(refreshTokenByCredentials);
+        tokens.refresh_token = refreshTokenByCredentials;
+        debug('setting credentials...', tokens);
+        this.credentials = tokens;
 
-                return this.credentials;
-            });
+        return this.credentials;
     }
 
     /**
@@ -402,9 +405,12 @@ export default class OAuth2client implements Auth {
 
         debug('fetching...', options);
 
-        return fetch(
+        // timeout設定(2022-12-03~)
+        return transporters.fetchWithTimeout(
+            // return fetch(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
-            options
+            options,
+            { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
             debug('response:', response.status);
             if (response.status !== OK) {
@@ -453,13 +459,13 @@ export default class OAuth2client implements Auth {
         let payload: ITokenPayload;
 
         try {
-            envelope = JSON.parse(new Buffer(segments[0], 'base64').toString('utf8'));
+            envelope = JSON.parse(Buffer.from(segments[0], 'base64').toString('utf8'));
         } catch (err) {
             throw new Error(`Can't parse token envelope: ${segments[0]}`);
         }
 
         try {
-            payload = JSON.parse(new Buffer(segments[1], 'base64').toString('utf8'));
+            payload = JSON.parse(Buffer.from(segments[1], 'base64').toString('utf8'));
         } catch (err) {
             throw new Error(`Can't parse token payload: ${segments[0]}`);
         }
@@ -501,9 +507,6 @@ export default class OAuth2client implements Auth {
             }
         }
 
-        return new LoginTicket({
-            envelope: envelope,
-            payload: payload
-        });
+        return new LoginTicket({ envelope, payload });
     }
 }

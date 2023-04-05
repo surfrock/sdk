@@ -3,17 +3,21 @@
  * id tokenからユーザーネームを取り出すためのシンプルなクラス
  */
 export class LoginTicket {
-    public envelope?: string;
-    public payload?: ITokenPayload;
+    public envelope?: any;
+    public payload: ITokenPayload;
 
     /**
      * constructor
      */
     constructor(params: {
-        envelope?: string;
-        payload?: ITokenPayload;
+        envelope?: any;
+        payload: ITokenPayload;
     }) {
-        this.envelope = params.envelope;
+        // tslint:disable-next-line:no-single-line-block-comment
+        /* istanbul ignore else */
+        if (params.envelope !== undefined) {
+            this.envelope = params.envelope;
+        }
         this.payload = params.payload;
     }
 
@@ -21,11 +25,7 @@ export class LoginTicket {
      * ユーザーネームを取り出す
      */
     public getUsername() {
-        if (this.payload !== undefined) {
-            return this.payload['cognito:username'];
-        }
-
-        return;
+        return this.payload['cognito:username'];
     }
 }
 
