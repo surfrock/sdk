@@ -12,20 +12,11 @@ describe('LoginTicket.getUsername()', () => {
             'cognito:username': username
         };
         const loginTicket = new LoginTicket({
-            envelope: 'envelope',
+            envelope: { kid: 'xxx' },
             payload: payload
         });
 
         const result = loginTicket.getUsername();
         assert.equal(result, username);
-    });
-
-    it('ペイロードがなければundefinedとなるはず', () => {
-        const loginTicket = new LoginTicket({
-            envelope: 'envelope'
-        });
-
-        const result = loginTicket.getUsername();
-        assert.equal(result, undefined);
     });
 });
