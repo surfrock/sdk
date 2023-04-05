@@ -4,7 +4,7 @@
  */
 export class LoginTicket {
     public envelope?: any;
-    public payload?: ITokenPayload;
+    public payload: ITokenPayload;
 
     /**
      * constructor
@@ -25,11 +25,7 @@ export class LoginTicket {
      * ユーザーネームを取り出す
      */
     public getUsername() {
-        if (this.payload !== undefined) {
-            return this.payload['cognito:username'];
-        }
-
-        return;
+        return this.payload['cognito:username'];
     }
 }
 
