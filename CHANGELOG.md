@@ -11,6 +11,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Changed
 
 - アクセストークン取得リクエストにタイムアウト設定
+- update typescript@5.x.x
+- update compilerOptions: ```"exactOptionalPropertyTypes": true```
 
 ### Deprecated
 

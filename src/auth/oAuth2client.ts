@@ -185,18 +185,17 @@ export default class OAuth2client implements Auth {
     }
 
     public async refreshAccessToken(): Promise<ICredentials> {
-        if (this.credentials.refresh_token === undefined) {
+        const refreshTokenByCredentials = this.credentials.refresh_token;
+        if (typeof refreshTokenByCredentials !== 'string') {
             throw new Error('No refresh token is set.');
         }
 
-        return this.refreshToken(this.credentials.refresh_token)
-            .then((tokens) => {
-                tokens.refresh_token = this.credentials.refresh_token;
-                debug('setting credentials...', tokens);
-                this.credentials = tokens;
+        const tokens = await this.refreshToken(refreshTokenByCredentials);
+        tokens.refresh_token = refreshTokenByCredentials;
+        debug('setting credentials...', tokens);
+        this.credentials = tokens;
 
-                return this.credentials;
-            });
+        return this.credentials;
     }
 
     /**
@@ -460,13 +459,13 @@ export default class OAuth2client implements Auth {
         let payload: ITokenPayload;
 
         try {
-            envelope = JSON.parse(new Buffer(segments[0], 'base64').toString('utf8'));
+            envelope = JSON.parse(Buffer.from(segments[0], 'base64').toString('utf8'));
         } catch (err) {
             throw new Error(`Can't parse token envelope: ${segments[0]}`);
         }
 
         try {
-            payload = JSON.parse(new Buffer(segments[1], 'base64').toString('utf8'));
+            payload = JSON.parse(Buffer.from(segments[1], 'base64').toString('utf8'));
         } catch (err) {
             throw new Error(`Can't parse token payload: ${segments[0]}`);
         }
@@ -508,9 +507,6 @@ export default class OAuth2client implements Auth {
             }
         }
 
-        return new LoginTicket({
-            envelope: envelope,
-            payload: payload
-        });
+        return new LoginTicket({ envelope, payload });
     }
 }
