@@ -10,10 +10,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
-- アクセストークン取得リクエストにタイムアウト設定
-- update typescript@5.x.x
-- update compilerOptions: ```"exactOptionalPropertyTypes": true```
-
 ### Deprecated
 
 ### Removed
@@ -21,6 +17,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v1.2.0 - 2023-04-05
+
+### Changed
+
+- アクセストークン取得リクエストにタイムアウト設定
+- update typescript@5.x.x
+- update compilerOptions: ```"exactOptionalPropertyTypes": true```
 
 ## v1.1.0 - 2022-03-28
 
