@@ -19,7 +19,7 @@ async function main() {
         kgygishCd: 'SSK000',
         kgysystmzskyykNo: '439355702944053',
         kgysystmzskyykNoIkktsCnclFlg: '1',
-        jyuTyp: client.service.seat.factory.seatInfoSyncCancel.JyuTyp.IJyuTyp05,
+        jyuTyp: client.factory.service.seat.seatInfoSyncCancel.JyuTyp.JyuTyp05,
         jyuTypRmk: '',
         // knyknrNoInfoIn: [
         //     {

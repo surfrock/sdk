@@ -17,8 +17,8 @@ async function main() {
     });
     const result = await seatService.seatInfoSync({
         kgygishCd: 'SSK000',
-        yykDvcTyp: client.service.seat.factory.ReserveDeviceType.EntertainerSitePC,
-        trkshFlg: client.service.seat.factory.DeleteFlag.False,
+        yykDvcTyp: client.factory.service.seat.seatInfoSync.ReserveDeviceType.EntertainerSitePC,
+        trkshFlg: client.factory.service.seat.seatInfoSync.DeleteFlag.False,
         kgygishSstmZskyykNo: '118124',
         kgygishUsrZskyykNo: '124',
         jeiDt: '2017/03/02 10:00:00',
@@ -45,4 +45,6 @@ async function main() {
     console.log(result);
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.dir(error, { depth: null });
+});
