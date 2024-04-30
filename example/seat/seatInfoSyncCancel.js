@@ -17,9 +17,9 @@ async function main() {
     });
     const result = await seatService.seatInfoSyncCancel({
         kgygishCd: 'SSK000',
-        kgysystmzskyykNo: '863616001529836',
+        kgysystmzskyykNo: '439355702944053',
         kgysystmzskyykNoIkktsCnclFlg: '1',
-        jyuTyp: client.service.seat.factory.seatInfoSyncCancel.IJyuTyp.IJyuTyp05,
+        jyuTyp: client.service.seat.factory.seatInfoSyncCancel.JyuTyp.IJyuTyp05,
         jyuTypRmk: '',
         // knyknrNoInfoIn: [
         //     {
@@ -37,4 +37,6 @@ async function main() {
     console.dir(result, { depth: null });
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.dir(error, { depth: null });
+});

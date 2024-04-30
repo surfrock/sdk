@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Added
 
 - 座席開放連携を追加
+- export factory
 
 ### Changed
 

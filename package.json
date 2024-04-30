@@ -78,7 +78,7 @@
     "typescript": "5.0.3"
   },
   "dependencies": {
-    "@surfrock/abstract-sdk": "1.4.0-alpha.0",
+    "@surfrock/abstract-sdk": "1.4.0-alpha.1",
     "debug": "^3.2.5",
     "http-status": "1.6.2"
   }
