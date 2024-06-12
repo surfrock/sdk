@@ -18,6 +18,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v1.3.0 - 2024-06-12
+
+### Added
+
+- 座席開放連携を追加
+- export factory
+
+### Changed
+
+- reimplement with @surfrock/soap-parser
+
 ## v1.2.0 - 2023-04-05
 
 ### Changed
@@ -38,10 +49,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- ムビチケ券種区分(G3,G4など)を追加
+- 券種区分(G3,G4など)を追加
 
 ## v1.0.0 - 2018-10-09
 
 ### Added
 
-- ムビチケAPIをラッピングする形でファーストリリース。
+- APIをラッピングする形でファーストリリース。

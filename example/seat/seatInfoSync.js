@@ -16,23 +16,23 @@ async function main() {
         auth: authClient
     });
     const result = await seatService.seatInfoSync({
-        kgygishCd: 'SSK000', //興行会社コード
-        yykDvcTyp: client.service.seat.factory.ReserveDeviceType.EntertainerSitePC, //予約デバイス区分
-        trkshFlg: client.service.seat.factory.DeleteFlag.False, //取消フラグ
-        kgygishSstmZskyykNo: '118124', //興行会社システム座席予約番号
-        kgygishUsrZskyykNo: '124', //興行会社ユーザー座席予約番号
-        jeiDt: '2017/03/02 10:00:00', //上映日時
-        kijYmd: '2017/03/02', //計上年月日
-        stCd: '18', //サイトコード
-        screnCd: '10', //スクリーンコード
+        kgygishCd: 'SSK000',
+        yykDvcTyp: client.factory.service.seat.seatInfoSync.ReserveDeviceType.EntertainerSitePC,
+        trkshFlg: client.factory.service.seat.seatInfoSync.DeleteFlag.False,
+        kgygishSstmZskyykNo: '118124',
+        kgygishUsrZskyykNo: '124',
+        jeiDt: '2017/03/02 10:00:00',
+        kijYmd: '2017/03/02',
+        stCd: '18',
+        screnCd: '10',
         knyknrNoInfo: [
             {
-                knyknrNo: '4450899842', //購入管理番号（ムビチケ購入番号）
-                pinCd: '7648', //pinコード（ムビチケ暗証番号）
+                knyknrNo: '4450899842',
+                pinCd: '7648',
                 knshInfo: [
                     {
-                        knshTyp: '01', //券種区分
-                        miNum: 2 //枚数
+                        knshTyp: '01',
+                        miNum: 2
                     }
                 ]
             }
@@ -40,9 +40,11 @@ async function main() {
         zskInfo: [
             { zskCd: 'Ａ－２' }, { zskCd: 'Ａ－３' }
         ],
-        skhnCd: '1622700' //作品コード
+        skhnCd: '1622700'
     });
     console.log(result);
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.dir(error, { depth: null });
+});

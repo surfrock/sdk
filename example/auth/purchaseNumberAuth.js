@@ -22,7 +22,7 @@ async function main() {
     );
     const result = await authService.purchaseNumberAuth({
         kgygishCd: 'SSK000', //興行会社コード
-        jhshbtsCd: client.service.auth.factory.InformationTypeCode.All, //情報種別コード
+        jhshbtsCd: client.factory.service.auth.purchaseNumberAuth.InformationTypeCode.All, //情報種別コード
         knyknrNoInfoIn: [
             {
                 knyknrNo: '3472695908', //購入管理番号

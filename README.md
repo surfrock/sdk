@@ -22,7 +22,3 @@ npm install @surfrock/sdk
 | Name    | Required | Value          | Purpose |
 | ------- | -------- | -------------- | ------- |
 | `DEBUG` | false    | surfrock-sdk:* | Debug   |
-
-## License
-
-ISC
