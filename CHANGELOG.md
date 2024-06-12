@@ -8,12 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Added
 
-- 座席開放連携を追加
-- export factory
-
 ### Changed
-
-- reimplement with @surfrock/soap-parser
 
 ### Deprecated
 
@@ -22,6 +17,17 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 ### Fixed
 
 ### Security
+
+## v1.3.0 - 2024-06-12
+
+### Added
+
+- 座席開放連携を追加
+- export factory
+
+### Changed
+
+- reimplement with @surfrock/soap-parser
 
 ## v1.2.0 - 2023-04-05
 
