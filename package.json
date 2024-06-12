@@ -19,12 +19,10 @@
     "build": "tsc",
     "check": "npm run tslint",
     "clean": "rimraf ./lib \"npm-debug.log*\" ./docs ./coverage ./.nyc_output",
-    "example": "http-server ./example",
     "doc": "echo \"implementing...\" && exit 0",
     "mocha": "mocha",
     "nyc": "nyc mocha \"src/**/*.spec.ts\"",
     "coverage": "npm run nyc && nyc report --reporter=text-lcov | coveralls",
-    "snyk": "snyk wizard",
     "test": "npm run check && npm run coverage",
     "tslint": "tslint --project tsconfig.json -c tslint.json --exclude \"**/*.spec.ts\" \"src/**/*.ts\"",
     "preversion": "npm run clean && npm run build && npm test && npm run doc",
@@ -36,9 +34,6 @@
     "type": "git",
     "url": "https://github.com/surfrock/sdk.git"
   },
-  "keywords": [
-    "surfrock"
-  ],
   "author": {
     "name": "Motionpicture co.,ltd."
   },
@@ -48,28 +43,20 @@
       "name": "Tetsu Yamazaki"
     }
   ],
-  "license": "ISC",
+  "license": "UNLICENSED",
   "devDependencies": {
     "@types/debug": "0.0.30",
-    "@types/form-data": "^2.2.1",
     "@types/http-status": "1.1.2",
-    "@types/jwt-decode": "^2.2.1",
     "@types/mocha": "^5.2.5",
     "@types/node": "18.19.31",
-    "@types/open": "0.0.29",
     "@types/power-assert": "^1.5.0",
-    "@types/request": "^2.47.1",
     "@types/sinon": "^5.0.5",
     "coveralls": "^3.0.2",
-    "http-server": "^0.11.1",
-    "jwt-decode": "^2.2.0",
     "mocha": "^5.2.0",
     "moment": "^2.22.2",
     "nock": "13.5.4",
     "nyc": "15.1.0",
-    "open": "0.0.5",
     "power-assert": "^1.6.1",
-    "request": "^2.87.0",
     "rimraf": "^2.6.2",
     "sinon": "^6.3.5",
     "ts-node": "^7.0.1",
@@ -78,7 +65,7 @@
     "typescript": "5.0.3"
   },
   "dependencies": {
-    "@surfrock/abstract-sdk": "1.4.0-alpha.2",
+    "@surfrock/abstract-sdk": "1.4.0",
     "debug": "^3.2.5",
     "http-status": "1.6.2"
   }
