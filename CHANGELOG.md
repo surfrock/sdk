@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+- OAuth2client: support CredentialsRepo
+
 ### Deprecated
 
 ### Removed

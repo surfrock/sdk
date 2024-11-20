@@ -8,22 +8,41 @@ import * as assert from 'power-assert';
 import * as qs from 'querystring';
 import * as sinon from 'sinon';
 import * as url from 'url';
+import { AbstractCredentialsRepo } from '../auth/repo/credentials';
 import * as client from '../index';
+
+/**
+ * テスト認証情報リポジトリ
+ */
+export class StubCredentialsRepo implements AbstractCredentialsRepo {
+    // tslint:disable-next-line:prefer-function-over-method
+    public async save(): Promise<void> {
+        // no op
+    }
+
+    // tslint:disable-next-line:prefer-function-over-method
+    public async find() {
+        return {
+            token_type: 'Bearer',
+            expiry_date: 2732084594461,
+            refresh_token: 'ignored',
+            access_token: 'xxx'
+        };
+    }
+}
 
 const DOMAIN = 'DOMAIN';
 const CLIENT_ID = 'CLIENT_ID';
 const CLIENT_SECRET = 'CLIENT_SECRET';
 const REDIRECT_URI = 'REDIRECT_URI';
 const LOGOUT_URI = 'LOGOUT_URI';
-// const ACCESS_TYPE = 'offline';
 const STATE = 'state';
 const CODE_VERIFIER = 'codeVerifier';
-// const SCOPE = 'scopex';
 const SCOPES = ['scopex', 'scopey'];
 let sandbox: sinon.SinonSandbox;
 
 before(() => {
-    sandbox = sinon.sandbox.create();
+    sandbox = sinon.createSandbox();
 });
 
 describe('generateAuthUrl()', () => {
@@ -180,6 +199,7 @@ describe('refreshAccessToken()', () => {
     });
 
     beforeEach(() => {
+        sandbox.restore();
         nock.cleanAll();
         nock.disableNetConnect();
     });
@@ -225,6 +245,28 @@ describe('refreshAccessToken()', () => {
 
             assert(scope.isDone());
         });
+    });
+
+    it('認証情報リポジトリをセットすれば、リポジトリへ保管するはず', async () => {
+        const scope = nock(`https://${DOMAIN}`)
+            .post('/token')
+            .reply(OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
+        const credentialsRepo = new StubCredentialsRepo();
+        sandbox.mock(credentialsRepo)
+            .expects('save')
+            .once()
+            .resolves();
+        const auth = new client.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI,
+            credentialsRepo
+        });
+        auth.setCredentials({ refresh_token: 'ignore' });
+        await auth.refreshAccessToken();
+        assert(scope.isDone());
+        sandbox.verify();
     });
 
     // it('リフレッシュトークンがあればアクセストークンを取得できるはず', async () => {
@@ -407,6 +449,7 @@ describe('getAccessToken()', () => {
     });
 
     beforeEach(() => {
+        sandbox.restore();
         nock.cleanAll();
         nock.disableNetConnect();
     });
@@ -424,6 +467,94 @@ describe('getAccessToken()', () => {
                 return error;
             });
         assert(transferError instanceof Error);
+    });
+
+    it('認証情報リポジトリをセットすれば、リポジトリから検索するはず', async () => {
+        const credentialsRepo = new StubCredentialsRepo();
+        sandbox.mock(credentialsRepo)
+            .expects('find')
+            .once()
+            .resolves({
+                token_type: 'Bearer',
+                expiry_date: 2732084594461,
+                refresh_token: 'ignored',
+                access_token: 'xxx'
+            });
+        const auth = new client.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI,
+            credentialsRepo
+        });
+        sandbox.mock(auth)
+            .expects('refreshAccessToken')
+            .never();
+
+        const result = await auth.getAccessToken();
+        assert(typeof result === 'string');
+        sandbox.verify();
+    });
+
+    it('リモートリポジトリに認証情報が存在しなければトークンを発行する', async () => {
+        const credentialsRepo = new StubCredentialsRepo();
+        sandbox.mock(credentialsRepo)
+            .expects('find')
+            .once()
+            .resolves(undefined);
+        const auth = new client.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI,
+            credentialsRepo
+        });
+        auth.setCredentials({ refresh_token: 'ignore' });
+        sandbox.mock(auth)
+            .expects('refreshAccessToken')
+            .once()
+            .resolves({
+                token_type: 'Bearer',
+                expiry_date: 2732084594461,
+                refresh_token: 'ignored',
+                access_token: 'xxx'
+            });
+
+        await auth.getAccessToken();
+        sandbox.verify();
+    });
+
+    it('万が一リモートリポジトリからの情報にアクセストークンが含まれなければ採用しない', async () => {
+        const credentialsRepo = new StubCredentialsRepo();
+        sandbox.mock(credentialsRepo)
+            .expects('find')
+            .once()
+            .resolves({
+                token_type: 'Bearer',
+                expiry_date: 2732084594461,
+                refresh_token: 'ignored'
+                // access_token: 'xxx' // <-アクセストークンが含まれない
+            });
+        const auth = new client.auth.OAuth2({
+            domain: DOMAIN,
+            clientId: CLIENT_ID,
+            clientSecret: CLIENT_SECRET,
+            redirectUri: REDIRECT_URI,
+            credentialsRepo
+        });
+        auth.setCredentials({ refresh_token: 'ignore' });
+        sandbox.mock(auth)
+            .expects('refreshAccessToken')
+            .once()
+            .resolves({
+                token_type: 'Bearer',
+                expiry_date: 2732084594461,
+                refresh_token: 'ignored',
+                access_token: 'xxx'
+            });
+
+        await auth.getAccessToken();
+        sandbox.verify();
     });
 
     after(() => {
@@ -570,10 +701,11 @@ describe('fetch()', () => {
 
 describe('verifyIdToken()', () => {
     let auth: client.auth.OAuth2;
-    afterEach(() => {
-        sandbox.restore();
-    });
+    // afterEach(() => {
+    //     sandbox.restore();
+    // });
     beforeEach(() => {
+        sandbox.restore();
         nock.cleanAll();
         auth = new client.auth.OAuth2({
             domain: DOMAIN,

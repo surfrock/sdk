@@ -4,25 +4,22 @@ import * as httpStatus from 'http-status';
 import * as querystring from 'querystring';
 
 import { transporters } from '../abstract';
-import ICredentials from './credentials';
-import { default as OAuth2client, DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS } from './oAuth2client';
+import { ICredentials } from './credentials';
+import { DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS, IOptions as IOAuth2clientOptions, OAuth2client } from './oAuth2client';
 
 const debug = createDebug('surfrock-sdk:auth');
 
-export interface IOptions {
-    domain: string;
+export type IOptions = Pick<IOAuth2clientOptions, 'domain' | 'credentialsRepo'> & {
     clientId: string;
     clientSecret: string;
     scopes: string[];
     state: string;
-}
+};
 
 /**
  * クライアント認証OAuthクライアント
- *
- * @class ClientCredentialsClient
  */
-export default class ClientCredentialsClient extends OAuth2client {
+export class ClientCredentialsClient extends OAuth2client {
     public options: IOptions;
 
     constructor(options: IOptions) {

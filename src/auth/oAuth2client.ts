@@ -8,10 +8,11 @@ import { BAD_REQUEST, FORBIDDEN, OK, UNAUTHORIZED } from 'http-status';
 import * as querystring from 'querystring';
 
 import { Auth, transporters } from '../abstract';
-import ICredentials from './credentials';
+import { ICredentials } from './credentials';
 import { ITokenPayload, LoginTicket } from './loginTicket';
+import { AbstractCredentialsRepo } from './repo/credentials';
 
-const debug = createDebug('mocoin-api-nodejs-client:auth:oAuth2client');
+const debug = createDebug('surfrock-sdk:auth:oAuth2client');
 export const DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS: number = 20000;
 
 export interface IGenerateAuthUrlOpts {
@@ -33,6 +34,10 @@ export interface IOptions {
     nonce?: string | null;
     audience?: string;
     tokenIssuer?: string;
+    /**
+     * カスタム認証情報リポジトリ
+     */
+    credentialsRepo?: AbstractCredentialsRepo;
 }
 
 export interface IVerifyIdTokenOptions {
@@ -43,7 +48,7 @@ export interface IVerifyIdTokenOptions {
 /**
  * OAuth2 client
  */
-export default class OAuth2client implements Auth {
+export class OAuth2client implements Auth {
     /**
      * The base URL for auth endpoints.
      */
@@ -195,6 +200,12 @@ export default class OAuth2client implements Auth {
         debug('setting credentials...', tokens);
         this.credentials = tokens;
 
+        // save in remote(2024-11-20~)
+        if (this.options.credentialsRepo !== undefined) {
+            debug('saving in repo...', this.credentials);
+            await this.options.credentialsRepo.save(this.credentials);
+        }
+
         return this.credentials;
     }
 
@@ -203,6 +214,17 @@ export default class OAuth2client implements Auth {
      * 必要であれば更新してから取得します。
      */
     public async getAccessToken(): Promise<string> {
+        // find from remote(2024-11-20~)
+        if (typeof this.credentials.access_token !== 'string') {
+            if (this.options.credentialsRepo !== undefined) {
+                const credentialsFromRepo = await this.options.credentialsRepo.find();
+                debug('credentials in repo found,', credentialsFromRepo);
+                if (typeof credentialsFromRepo?.access_token === 'string') {
+                    this.credentials = credentialsFromRepo;
+                }
+            }
+        }
+
         // tslint:disable-next-line:max-line-length
         const expiryDate = this.credentials.expiry_date;
 

@@ -2,8 +2,8 @@
  * API Node.js Client
  */
 import { factory, service, transporters } from './abstract';
-import ClientCredentialsClient from './auth/clientCredentialsClient';
-import OAuth2client from './auth/oAuth2client';
+import { ClientCredentialsClient } from './auth/clientCredentialsClient';
+import { OAuth2client } from './auth/oAuth2client';
 
 export import factory = factory;
 export import service = service;
