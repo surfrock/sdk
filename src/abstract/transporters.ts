@@ -137,7 +137,6 @@ export async function fetchWithTimeout(url: string, fetchOptions: RequestInit, r
     try {
         debug('fetching with timeout...', requestOptions.timeout, 'ms');
         response = await fetch(url, requestInit);
-        debug('fetched with timeout', requestOptions.timeout, 'ms');
     } catch (error) {
         // tslint:disable-next-line:no-single-line-block-comment
         /* istanbul ignore next */
@@ -154,9 +153,13 @@ export async function fetchWithTimeout(url: string, fetchOptions: RequestInit, r
         }
     }
 
-    // tslint:disable-next-line:no-single-line-block-comment
-    /* istanbul ignore if */
     if (abortError !== undefined) {
+        if (abortError.name === 'AbortError') {
+            abortError.requestOptions = {
+                ...requestOptions,
+                url
+            };
+        }
         throw abortError;
     }
 

@@ -87,7 +87,8 @@ async function main() {
             auth: authClient
         },
         {
-            timeout: 10000
+            timeout: 5000
+            // timeout: 1
         }
     );
     const result = await authService.purchaseNumberAuth({

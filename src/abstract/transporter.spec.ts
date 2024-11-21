@@ -12,12 +12,13 @@ import {
     OK,
     UNAUTHORIZED
 } from 'http-status';
+// import * as fetch from 'isomorphic-fetch';
 import { } from 'mocha';
 import * as nock from 'nock';
 import * as assert from 'power-assert';
 import * as sinon from 'sinon';
 
-import { DefaultTransporter, RequestError } from './transporters';
+import { DefaultTransporter, fetchWithTimeout, RequestError } from './transporters';
 
 const API_ENDPOINT = 'https://example.com';
 
@@ -150,4 +151,68 @@ describe('CONFIGURE()', () => {
     //     assert((<any>result.headers)['User-Agent'].indexOf(DefaultTransporter.USER_AGENT) > 0);
     //     sandbox.verify();
     // });
+});
+
+describe('fetchWithTimeout()', () => {
+    let scope: nock.Scope;
+    let sandbox: sinon.SinonSandbox;
+
+    beforeEach(() => {
+        sandbox = sinon.createSandbox();
+        sandbox.restore();
+        nock.cleanAll();
+        nock.disableNetConnect();
+    });
+
+    afterEach(() => {
+        nock.cleanAll();
+        nock.enableNetConnect();
+    });
+
+    it('timeoutを設定してもレスポンスを取得できるはず', async () => {
+        const body: any = { key: 'value' };
+
+        scope = nock(API_ENDPOINT)
+            .get('/uri')
+            .reply(OK, body);
+
+        const result = await fetchWithTimeout(`${API_ENDPOINT}/uri`, {}, { timeout: 10000 })
+            .then(async (res) => res.json());
+        assert.deepEqual(result, body);
+        sandbox.verify();
+        assert(scope.isDone());
+    });
+
+    it('AbortErrorの場合、エラーオブジェクトにrequestOptionが拡張される', async () => {
+        const body: any = { key: 'value' };
+
+        // const transporter = new DefaultTransporter([OK]);
+
+        scope = nock(API_ENDPOINT)
+            .get('/uri')
+            // tslint:disable-next-line:no-magic-numbers
+            .delay(999999)
+            .reply(OK, body);
+
+        const result = await fetchWithTimeout(`${API_ENDPOINT}/uri`, {}, { timeout: 1 })
+            .catch((err) => err);
+        assert(result instanceof Error);
+        assert.equal(result.name, 'AbortError');
+        sandbox.verify();
+        assert(scope.isDone());
+    });
+
+    it('AbortError以外の場合、そのまま例外が投げられる', async () => {
+        const errorMessage = 'unknown error';
+        scope = nock(API_ENDPOINT)
+            .get('/uri')
+            .replyWithError(errorMessage);
+
+        const result = await fetchWithTimeout(`${API_ENDPOINT}/uri`, {}, { timeout: 10000 })
+            .catch((err) => err);
+        assert(result instanceof Error);
+        assert.equal(result.name, 'FetchError');
+        sandbox.verify();
+        assert(scope.isDone());
+    });
 });
