@@ -191,7 +191,7 @@ describe('fetchWithTimeout()', () => {
         scope = nock(API_ENDPOINT)
             .get('/uri')
             // tslint:disable-next-line:no-magic-numbers
-            .delay(999999)
+            .delay(3000)
             .reply(OK, body);
 
         const result = await fetchWithTimeout(`${API_ENDPOINT}/uri`, {}, { timeout: 1 })
