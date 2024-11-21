@@ -1,4 +1,4 @@
 /**
  * Abstract API Client
  */
-export * from '@surfrock/abstract-sdk';
+export * from './abstract/index';

@@ -46,12 +46,16 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@types/debug": "0.0.30",
+    "@types/fetch-mock": "6.0.9",
     "@types/http-status": "1.1.2",
+    "@types/isomorphic-fetch": "0.0.39",
     "@types/mocha": "^5.2.5",
     "@types/node": "18.19.31",
     "@types/power-assert": "^1.5.0",
+    "@types/qs": "6.5.3",
     "@types/sinon": "^5.0.5",
     "coveralls": "^3.0.2",
+    "fetch-mock": "6.5.2",
     "mocha": "^5.2.0",
     "moment": "^2.22.2",
     "nock": "13.5.4",
@@ -66,8 +70,11 @@
     "typescript": "5.0.3"
   },
   "dependencies": {
-    "@surfrock/abstract-sdk": "1.4.0",
-    "debug": "^3.2.5",
-    "http-status": "1.6.2"
+    "@surfrock/soap-parser": "2.0.0",
+    "abort-controller": "3.0.0",
+    "debug": "3.2.7",
+    "http-status": "1.6.2",
+    "isomorphic-fetch": "3.0.0",
+    "qs": "6.5.3"
   }
 }
