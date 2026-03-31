@@ -25,9 +25,7 @@ export interface IOptions {
 export interface IFetchOptions {
     uri: string;
     method: string;
-    headers?: {
-        [key: string]: any;
-    };
+    headers?: Record<string, any>;
     body?: any;
     expectedStatusCodes: number[];
     /**

@@ -90,7 +90,7 @@ export class DefaultTransporter implements Transporter {
                 // responds without proper content-type.
                 body = await response.clone()
                     .json();
-            } catch (error) {
+            } catch {
                 body = await response.clone()
                     .text();
             }
