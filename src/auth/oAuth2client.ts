@@ -4,7 +4,6 @@
 import * as crypto from 'crypto';
 import * as createDebug from 'debug';
 import { BAD_REQUEST, FORBIDDEN, OK, UNAUTHORIZED } from 'http-status';
-// import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
 import { Auth, transporters } from '../abstract';

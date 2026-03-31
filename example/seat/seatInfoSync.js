@@ -11,10 +11,16 @@ async function main() {
         scopes: [],
         state: ''
     });
-    const seatService = new client.service.seat.SeatService({
-        endpoint: process.env.API_ENDPOINT,
-        auth: authClient
-    });
+    const seatService = new client.service.seat.SeatService(
+        {
+            endpoint: process.env.API_ENDPOINT,
+            auth: authClient
+        },
+        {
+            timeout: 5000
+            // timeout: 1
+        }
+    );
     const result = await seatService.seatInfoSync({
         kgygishCd: 'SSK000',
         yykDvcTyp: client.factory.service.seat.seatInfoSync.ReserveDeviceType.EntertainerSitePC,

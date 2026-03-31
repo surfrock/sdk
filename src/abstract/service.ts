@@ -1,4 +1,4 @@
-import * as qs from 'qs';
+// import * as qs from 'qs';
 
 import { AuthClient } from './auth/authClient';
 import { DefaultTransporter, IRequestOptions, Transporter } from './transporters';
@@ -24,14 +24,20 @@ export interface IOptions {
 }
 export interface IFetchOptions {
     uri: string;
-    form?: any;
-    qs?: any;
     method: string;
     headers?: {
         [key: string]: any;
     };
     body?: any;
     expectedStatusCodes: number[];
+    /**
+     * クエリは不使用なので廃止
+     */
+    qs?: never;
+    /**
+     * formは不使用なので廃止
+     */
+    form?: never;
 }
 /**
  * base service class
@@ -60,10 +66,11 @@ export class Service {
         options = { ...defaultOptions, ...options };
 
         const baseUrl = this.options.endpoint;
-        let url = `${baseUrl}${options.uri}`;
+        const url = `${baseUrl}${options.uri}`;
 
-        const querystrings = qs.stringify(options.qs);
-        url += (querystrings.length > 0) ? `?${querystrings}` : '';
+        // クエリは不使用なので廃止(2026-03-31~)
+        // const querystrings = qs.stringify(options.qs);
+        // url += (querystrings.length > 0) ? `?${querystrings}` : '';
 
         const headers = {
             ...{
@@ -73,7 +80,7 @@ export class Service {
             ...options.headers
         };
 
-        const fetchOptions = {
+        const fetchOptions: RequestInit = {
             method: options.method,
             headers: headers,
             body: JSON.stringify(options.body)

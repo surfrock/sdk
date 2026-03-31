@@ -2,9 +2,9 @@
 /**
  * service test
  */
+import * as assert from 'assert';
 import { } from 'mocha';
-import * as assert from 'power-assert';
-import * as querystring from 'querystring';
+// import * as querystring from 'querystring';
 import * as sinon from 'sinon';
 
 import { StubAuthClient } from './auth/authClient';
@@ -72,62 +72,62 @@ describe('fetch()', () => {
         sandbox.verify();
     });
 
-    it('クエリパラメータをオプションとして渡すと、リクエストURLにクエリ文字列が付加されるはず', async () => {
-        const options = {
-            uri: '/uri',
-            qs: {
-                key: 'value',
-                key2: 'value2'
-            }
-        };
-        const response: any = { key: 'value' };
-        const querystrings = querystring.stringify(options.qs);
+    // it('クエリパラメータをオプションとして渡すと、リクエストURLにクエリ文字列が付加されるはず', async () => {
+    //     const options = {
+    //         uri: '/uri',
+    //         qs: {
+    //             key: 'value',
+    //             key2: 'value2'
+    //         }
+    //     };
+    //     const response: any = { key: 'value' };
+    //     const querystrings = querystring.stringify(options.qs);
 
-        const auth = new StubAuthClient();
-        const service = new Service({
-            auth: auth,
-            endpoint: API_ENDPOINT
-        });
+    //     const auth = new StubAuthClient();
+    //     const service = new Service({
+    //         auth: auth,
+    //         endpoint: API_ENDPOINT
+    //     });
 
-        sandbox.mock(service.options.auth)
-            .expects('fetch')
-            .once()
-            .withArgs(sinon.match(new RegExp(`\\?${querystrings}$`)))
-            .resolves(response);
+    //     sandbox.mock(service.options.auth)
+    //         .expects('fetch')
+    //         .once()
+    //         .withArgs(sinon.match(new RegExp(`\\?${querystrings}$`)))
+    //         .resolves(response);
 
-        const result = await service.fetch(<any>options);
-        assert.deepEqual(result, response);
-        sandbox.verify();
-    });
+    //     const result = await service.fetch(<any>options);
+    //     assert.deepEqual(result, response);
+    //     sandbox.verify();
+    // });
 
-    it('Date型のクエリパラメータを渡すと、リクエストURLにISO 8601形式文字列が付加されるはず', async () => {
-        const now = new Date();
-        const options = {
-            uri: '/uri',
-            qs: {
-                now: now
-            }
-        };
-        const response: any = { key: 'value' };
-        const querystrings = `now=${encodeURIComponent(now.toISOString())}`;
+    // it('Date型のクエリパラメータを渡すと、リクエストURLにISO 8601形式文字列が付加されるはず', async () => {
+    //     const now = new Date();
+    //     const options = {
+    //         uri: '/uri',
+    //         qs: {
+    //             now: now
+    //         }
+    //     };
+    //     const response: any = { key: 'value' };
+    //     const querystrings = `now=${encodeURIComponent(now.toISOString())}`;
 
-        const auth = new StubAuthClient();
-        const service = new Service({
-            auth: auth,
-            endpoint: API_ENDPOINT
-        });
+    //     const auth = new StubAuthClient();
+    //     const service = new Service({
+    //         auth: auth,
+    //         endpoint: API_ENDPOINT
+    //     });
 
-        sandbox.mock(service.options.auth)
-            .expects('fetch')
-            .once()
-            .withArgs(sinon.match(new RegExp(`\\?${querystrings}$`)))
-            .resolves(response);
+    //     sandbox.mock(service.options.auth)
+    //         .expects('fetch')
+    //         .once()
+    //         .withArgs(sinon.match(new RegExp(`\\?${querystrings}$`)))
+    //         .resolves(response);
 
-        const result = await service.fetch(<any>options);
+    //     const result = await service.fetch(<any>options);
 
-        assert.deepEqual(result, response);
-        sandbox.verify();
-    });
+    //     assert.deepEqual(result, response);
+    //     sandbox.verify();
+    // });
 
     it('authオプションもtransporterオプションも未定義であれば、内部的にDefaultTransporterインスタンスが生成されてfetchメソッドが呼ばれるはず', async () => {
         const options = {};

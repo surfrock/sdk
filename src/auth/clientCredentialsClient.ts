@@ -1,6 +1,5 @@
 import * as createDebug from 'debug';
 import * as httpStatus from 'http-status';
-// import * as fetch from 'isomorphic-fetch';
 import * as querystring from 'querystring';
 
 import { transporters } from '../abstract';
@@ -44,7 +43,7 @@ export class ClientCredentialsClient extends OAuth2client {
         };
         const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
         const options: RequestInit = {
-            credentials: 'include',
+            // credentials: 'include', // 不要か(2025-07-31~)
             body: querystring.stringify(form),
             method: 'POST',
             headers: {

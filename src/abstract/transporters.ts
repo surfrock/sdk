@@ -4,9 +4,8 @@
  */
 import AbortController from 'abort-controller';
 import * as createDebug from 'debug';
-import * as fetch from 'isomorphic-fetch';
 
-const debug = createDebug('surfrock-abstract-sdk:transporters');
+const debug = createDebug('surfrock-sdk:transporters');
 // tslint:disable-next-line
 // const pkg = require('../package.json');
 
@@ -42,7 +41,7 @@ export class DefaultTransporter implements Transporter {
     /**
      * Default user agent.
      */
-    // public static readonly USER_AGENT: string = `surfrock-abstract-sdk/${pkg.version}`;
+    // public static readonly USER_AGENT: string = `surfrock-sdk/${pkg.version}`;
     public expectedStatusCodes: number[];
     constructor(expectedStatusCodes: number[]) {
         this.expectedStatusCodes = expectedStatusCodes;
@@ -141,6 +140,7 @@ export async function fetchWithTimeout(url: string, fetchOptions: RequestInit, r
         // tslint:disable-next-line:no-single-line-block-comment
         /* istanbul ignore next */
         debug('request was aborted', error.name);
+        // debug('request was aborted', error.name, error.message, error.code, error instanceof DOMException);
         // if (error instanceof fetch.AbortError) {
         // }
         // tslint:disable-next-line:no-single-line-block-comment

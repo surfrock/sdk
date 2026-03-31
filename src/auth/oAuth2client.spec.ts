@@ -2,9 +2,9 @@
 /**
  * OAuth2 client test
  */
+import * as assert from 'assert';
 import { BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED } from 'http-status';
 import * as nock from 'nock';
-import * as assert from 'power-assert';
 import * as qs from 'querystring';
 import * as sinon from 'sinon';
 import * as url from 'url';

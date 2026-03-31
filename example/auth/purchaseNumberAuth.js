@@ -72,14 +72,14 @@ async function main() {
     });
     await redisClient.connect();
 
-    const credentialsRepo = new CredentialsRepo(redisClient, { scope: 'xxx' });
+    // const credentialsRepo = new CredentialsRepo(redisClient, { scope: 'xxx' });
     const authClient = new client.auth.ClientCredentials({
         domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.API_CLIENT_ID,
         clientSecret: process.env.API_CLIENT_SECRET,
         scopes: [],
-        state: '',
-        credentialsRepo
+        state: ''
+        // credentialsRepo
     });
     const authService = new client.service.auth.AuthService(
         {
@@ -93,6 +93,7 @@ async function main() {
     );
     const result = await authService.purchaseNumberAuth({
         kgygishCd: 'SSK000', //興行会社コード
+        // kgygishCd: 'xxx', //興行会社コード
         jhshbtsCd: client.factory.service.auth.purchaseNumberAuth.InformationTypeCode.All, //情報種別コード
         knyknrNoInfoIn: [
             {
@@ -105,8 +106,12 @@ async function main() {
         stCd: '18', //サイトコード
         jeiYmd: '2017/02/16' //上映年月日
     });
+    console.log(result);
     console.log(result.resultInfo.status);
     console.log('success!');
 }
 
-main().catch(console.error);
+main().catch((error) => {
+    console.error(error);
+    console.log(error.name);
+});

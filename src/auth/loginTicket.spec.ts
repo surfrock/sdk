@@ -2,7 +2,7 @@
 /**
  * ログインチケットテスト
  */
-import * as assert from 'power-assert';
+import * as assert from 'assert';
 import { LoginTicket } from './loginTicket';
 
 describe('LoginTicket.getUsername()', () => {

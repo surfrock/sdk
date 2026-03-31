@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - OAuth2client: support CredentialsRepo
 - remove dependency on abstract-sdk
 - extend AbortError(requestOptions)
+- isomorphic-fetch -> native fetch
 
 ### Deprecated
 
