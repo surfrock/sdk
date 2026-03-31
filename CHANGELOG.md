@@ -16,6 +16,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - isomorphic-fetch -> native fetch
 - update typescript@5.6
 - support eslint
+- update debug@4
+- update @types/node@22
 
 ### Deprecated
 
