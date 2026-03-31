@@ -12,9 +12,11 @@
         "inlineSourceMap": false,
         "inlineSources": false,
         "isolatedModules": false,
+        "lib": [
+            "ES2023"
+        ],
         "listEmittedFiles": false,
         "listFiles": false,
-        "locale": "en-us",
         "module": "commonjs",
         "newLine": "LF",
         "noImplicitAny": true,
@@ -34,13 +36,13 @@
         "stripInternal": false,
         "suppressExcessPropertyErrors": false,
         "suppressImplicitAnyIndexErrors": false,
-        "target": "es6",
-        "watch": false
+        "target": "ES2023"
     },
     "include": [
         "src"
     ],
     "exclude": [
-        "**/*.spec.ts"
+        "**/*.spec.ts",
+        "**/*.test.ts"
     ]
 }

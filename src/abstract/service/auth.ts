@@ -22,6 +22,6 @@ export class AuthService extends Service {
             body: params,
             expectedStatusCodes: [OK]
         })
-            .then(async (response) => response.json());
+            .then(async (response) => response.json() as Promise<factory.purchaseNumberAuth.IPurchaseNumberAuthResult>);
     }
 }

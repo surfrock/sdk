@@ -14,6 +14,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - remove dependency on abstract-sdk
 - extend AbortError(requestOptions)
 - isomorphic-fetch -> native fetch
+- update typescript@5.6
 
 ### Deprecated
 

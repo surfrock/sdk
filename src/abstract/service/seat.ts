@@ -21,7 +21,7 @@ export class SeatService extends Service {
             body: params,
             expectedStatusCodes: [OK]
         })
-            .then(async (response) => response.json());
+            .then(async (response) => response.json() as Promise<factory.seatInfoSync.ISeatInfoSyncResult>);
     }
     /**
      * 座席開放連携
@@ -35,6 +35,6 @@ export class SeatService extends Service {
             body: params,
             expectedStatusCodes: [OK]
         })
-            .then(async (response) => response.json());
+            .then(async (response) => response.json() as Promise<factory.seatInfoSyncCancel.ISeatInfoSyncCancelResult>);
     }
 }
