@@ -2,7 +2,6 @@
 /**
  * transporters
  */
-import AbortController from 'abort-controller';
 import * as createDebug from 'debug';
 
 const debug = createDebug('surfrock-sdk:transporters');
@@ -115,53 +114,32 @@ export async function fetchWithTimeout(url: string, fetchOptions: RequestInit, r
     const requestInit: RequestInit = {
         ...fetchOptions
     };
-    let abortTimer: NodeJS.Timeout | undefined;
     if (typeof requestOptions.timeout === 'number' && requestOptions.timeout > 0) {
-        const controller = new AbortController();
-        abortTimer = setTimeout(
-            // tslint:disable-next-line:no-single-line-block-comment
-            /* istanbul ignore next */
-            () => {
-                debug('abortController aborting...');
-                controller.abort();
-            },
-            requestOptions.timeout
-        );
-        requestInit.signal = <any>controller.signal;
+        // use AbortSignal(2026-03-31~)
+        requestInit.signal = AbortSignal.timeout(requestOptions.timeout);
     }
-
-    let abortError: any;
-    let response: any;
 
     try {
         debug('fetching with timeout...', requestOptions.timeout, 'ms');
-        response = await fetch(url, requestInit);
-    } catch (error) {
-        // tslint:disable-next-line:no-single-line-block-comment
-        /* istanbul ignore next */
-        debug('request was aborted', error.name);
-        // debug('request was aborted', error.name, error.message, error.code, error instanceof DOMException);
-        // if (error instanceof fetch.AbortError) {
-        // }
-        // tslint:disable-next-line:no-single-line-block-comment
-        /* istanbul ignore next */
-        abortError = error;
-    } finally {
-        if (abortTimer !== undefined) {
-            debug('clearing abort timer...');
-            clearTimeout(abortTimer);
-        }
-    }
 
-    if (abortError !== undefined) {
-        if (abortError.name === 'AbortError') {
-            abortError.requestOptions = {
+        return await fetch(url, requestInit);
+    } catch (error) {
+        debug('request was aborted', error.name);
+
+        // タイムアウト時は 'TimeoutError'
+        // abort-controllerを使用していた頃は 'AbortError'
+        if (error.name === 'TimeoutError' || error.name === 'AbortError') {
+            debug('request was aborted or timed out', error.name);
+            error.requestOptions = {
                 ...requestOptions,
                 url
             };
         }
-        throw abortError;
+        throw error;
+    } finally {
+        // if (abortTimer !== undefined) {
+        //     debug('clearing abort timer...');
+        //     clearTimeout(abortTimer);
+        // }
     }
-
-    return response;
 }

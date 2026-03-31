@@ -160,14 +160,14 @@ export class OAuth2client implements Auth {
             debug('response:', response.status);
             if (response.status !== OK) {
                 if (response.status === BAD_REQUEST) {
-                    const body = await response.json();
+                    const body = await response.json() as any;
                     throw new Error(body.error);
                 } else {
                     const body = await response.text();
                     throw new Error(body);
                 }
             } else {
-                const tokens = await response.json();
+                const tokens = await response.json() as any;
                 // tslint:disable-next-line:no-single-line-block-comment
                 /* istanbul ignore else */
                 if (tokens && tokens.expires_in) {
@@ -436,14 +436,14 @@ export class OAuth2client implements Auth {
             debug('response:', response.status);
             if (response.status !== OK) {
                 if (response.status === BAD_REQUEST) {
-                    const body = await response.json();
+                    const body = await response.json() as any;
                     throw new Error(body.error);
                 } else {
                     const body = await response.text();
                     throw new Error(body);
                 }
             } else {
-                const tokens = await response.json();
+                const tokens = await response.json() as any;
                 // tslint:disable-next-line:no-single-line-block-comment
                 /* istanbul ignore else */
                 if (tokens && tokens.expires_in) {
