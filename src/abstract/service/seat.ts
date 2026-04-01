@@ -1,10 +1,10 @@
-import { factory as SFR } from '@surfrock/soap-parser';
+import { SurfrockFactory } from '@surfrock/factory';
 import { OK } from 'http-status';
 import { Service } from '../service';
 
 export namespace factory {
-    export import seatInfoSync = SFR.service.seat.seatInfoSync;
-    export import seatInfoSyncCancel = SFR.service.seat.seatInfoSyncCancel;
+    export import seatInfoSync = SurfrockFactory.service.seat.seatInfoSync;
+    export import seatInfoSyncCancel = SurfrockFactory.service.seat.seatInfoSyncCancel;
 }
 
 /**

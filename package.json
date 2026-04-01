@@ -54,7 +54,7 @@
     "undici": "7.24.6"
   },
   "dependencies": {
-    "@surfrock/soap-parser": "2.0.0",
+    "@surfrock/factory": "1.0.0-alpha.0",
     "debug": "4.4.3",
     "http-status": "1.8.1"
   }

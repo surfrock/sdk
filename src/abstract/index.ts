@@ -1,13 +1,13 @@
 /**
  * API Service Library for Javascript
  */
-import { factory } from '@surfrock/soap-parser';
+import { SurfrockFactory } from '@surfrock/factory';
 import { AuthClient } from './auth/authClient';
 import * as authService from './service/auth';
 import * as seatService from './service/seat';
 import * as transporters from './transporters';
 
-export import factory = factory;
+export import factory = SurfrockFactory;
 export import transporters = transporters;
 
 /**
