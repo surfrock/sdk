@@ -42,7 +42,6 @@
     "@types/sinon": "^5.0.5",
     "eslint": "9.39.4",
     "mocha": "^5.2.0",
-    "moment": "^2.22.2",
     "nock": "14.0.7",
     "nyc": "15.1.0",
     "redis": "4.7.0",
@@ -54,7 +53,7 @@
     "undici": "7.24.6"
   },
   "dependencies": {
-    "@surfrock/factory": "1.0.0-alpha.0",
+    "@surfrock/factory": "1.0.0-alpha.1",
     "debug": "4.4.3",
     "http-status": "1.8.1"
   }

@@ -39,4 +39,21 @@ async function main() {
 
 main().catch((error) => {
     console.dir(error, { depth: null });
+
+    if (error.name === 'MovieticketReserveRequestError') {
+        if (error.code === 400) {
+            if (Array.isArray(error.errors) && error.errors.length > 0) {
+                const mvtkReserveServiceError = error.errors[0];
+                if (mvtkReserveServiceError.status === client.factory.ResultStatus.Success) {
+                    const cnclResult = mvtkReserveServiceError.rawResult?.cnclResult;
+                    if (cnclResult === client.service.seat.factory.seatInfoSyncCancel.CancelResult.CancelResult02) {
+                        console.log('興行会社システム座席予約番号存在無の場合、取消済なのでok');
+                    }
+                }
+            }
+        }
+    }
+
 });
+
+

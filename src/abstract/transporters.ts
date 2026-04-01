@@ -1,6 +1,7 @@
 /**
  * transporters
  */
+import { SurfrockFactory } from '@surfrock/factory';
 import * as createDebug from 'debug';
 
 const debug = createDebug('surfrock-sdk:transporters');
@@ -21,7 +22,7 @@ export type IBodyResponseCallback = Promise<Response>;
  */
 export class RequestError extends Error {
     public code: number;
-    public errors: Error[];
+    public errors?: (Error | SurfrockFactory.soapServiceError.ISoapServiceError)[];
 
     /* istanbul ignore next */
     constructor(message?: string) {
