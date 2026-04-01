@@ -39,18 +39,6 @@ jobs:
       - run:
           name: run npm test
           command: npm test
-  doc:
-    docker:
-      - image: cimg/node:22.22.0
-    steps:
-      - checkout
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package.json" }}
-      - run:
-          name: Generate docs
-          command: |
-            npm run build
-            npm run doc
   prerelease:
     docker:
       - image: cimg/node:22.22.0
@@ -84,24 +72,21 @@ jobs:
 # Used for orchestrating all jobs.
 workflows:
   version: 2
-  build-test-doc-and-deploy:
+  build-test-deploy:
     jobs:
       - build
       - test:
           requires:
             - build
-      - doc:
-          requires:
-            - test
       - prerelease:
           requires:
-            - doc
+            - test
           filters:
             branches:
               only: /feature\/.+-alpha.+/
       - deploy:
           requires:
-            - doc
+            - test
           filters:
             branches:
               only: master

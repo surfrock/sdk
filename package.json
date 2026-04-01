@@ -5,29 +5,20 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "files": [
-    "docs",
-    "example",
     "lib"
   ],
-  "directories": {
-    "doc": "./docs",
-    "lib": "./lib",
-    "example": "./example",
-    "test": "./test"
-  },
   "scripts": {
     "build": "tsc",
     "clean": "rimraf ./lib \"npm-debug.log*\" ./docs ./coverage ./.nyc_output",
-    "doc": "echo \"implementing...\" && exit 0",
     "mocha": "mocha",
     "nyc": "nyc mocha \"src/**/*.spec.ts\"",
     "coverage": "npm run nyc && nyc report --reporter=text-summary",
     "test": "npm run eslint && npm run coverage",
     "eslint": "eslint src/**/*.ts",
-    "preversion": "npm run clean && npm run build && npm test && npm run doc",
+    "preversion": "npm run clean && npm run build && npm test",
     "version": "git add -A",
     "postversion": "git push origin --tags",
-    "prepublishOnly": "npm run clean && npm run build && npm test && npm run doc"
+    "prepublishOnly": "npm run clean && npm run build && npm test"
   },
   "repository": {
     "type": "git",
