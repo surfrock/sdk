@@ -1,12 +1,9 @@
-// tslint:disable:max-classes-per-file
 /**
  * transporters
  */
 import * as createDebug from 'debug';
 
 const debug = createDebug('surfrock-sdk:transporters');
-// tslint:disable-next-line
-// const pkg = require('../package.json');
 
 export interface IRequestOptions {
     timeout?: number;
@@ -26,7 +23,6 @@ export class RequestError extends Error {
     public code: number;
     public errors: Error[];
 
-    // tslint:disable-next-line:no-single-line-block-comment
     /* istanbul ignore next */
     constructor(message?: string) {
         super(message);
@@ -51,7 +47,6 @@ export class DefaultTransporter implements Transporter {
     public static CONFIGURE(options: RequestInit): RequestInit {
         // set transporter user agent
         // options.headers = (options.headers !== undefined) ? options.headers : {};
-        // tslint:disable-next-line:no-single-line-block-comment
         /* istanbul ignore else */
         // if (!(<any>options.headers)['User-Agent']) {
         //     (<any>options.headers)['User-Agent'] = DefaultTransporter.USER_AGENT;
@@ -83,7 +78,7 @@ export class DefaultTransporter implements Transporter {
         debug('request processed', response.status);
         if (this.expectedStatusCodes.indexOf(response.status) < 0) {
             // Consider all 4xx and 5xx responses errors.
-            let body: any;
+            let body: any; // eslint-disable-line @typescript-eslint/no-explicit-any
             try {
                 // Only and only application/json responses should
                 // be decoded back to JSON, but there are cases API back-ends

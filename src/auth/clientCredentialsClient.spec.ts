@@ -1,4 +1,3 @@
-// tslint:disable:no-implicit-dependencies
 /**
  * clientCredentials client test
  * @ignore
@@ -52,7 +51,6 @@ describe('getToken()', () => {
         assert.equal(true, scope.isDone());
     });
 
-    // tslint:disable-next-line:mocha-no-side-effect-code
     [BAD_REQUEST, INTERNAL_SERVER_ERROR].forEach((statusCode) => {
         it(`認可サーバーが次のステータスコードを返却されば、トークンを取得できないはず  ${statusCode}`, async () => {
             scope = nock(`https://${DOMAIN}`)

@@ -1,4 +1,4 @@
-// tslint:disable:no-implicit-dependencies
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * transporter test
  */
@@ -38,7 +38,6 @@ describe('fetch()', () => {
         nock.enableNetConnect();
     });
 
-    // tslint:disable-next-line:mocha-no-side-effect-code
     [CREATED, OK].forEach((statusCode) => {
         it(`次のステータスコードが返却されれば、レスポンスを取得できるはず ${statusCode}`, async () => {
             const body: any = { key: 'value' };
@@ -57,7 +56,6 @@ describe('fetch()', () => {
         });
     });
 
-    // tslint:disable-next-line:mocha-no-side-effect-code
     [
         BAD_REQUEST,
         FORBIDDEN,
@@ -85,8 +83,8 @@ describe('fetch()', () => {
                 .catch((err) => err);
 
             assert(result instanceof Error);
-            assert.equal((<RequestError>result).code, statusCode);
-            assert.equal((<RequestError>result).message, body.error.message);
+            assert.equal((result as RequestError).code, statusCode);
+            assert.equal((result as RequestError).message, body.error.message);
             sandbox.verify();
             assert(scope.isDone());
         });
@@ -122,8 +120,8 @@ describe('fetch()', () => {
         const result = await transporter.fetch(`${API_ENDPOINT}/uri`, {}, {})
             .catch((err) => err);
         assert(result instanceof Error);
-        assert.equal((<RequestError>result).code, statusCode);
-        assert.equal((<RequestError>result).message, body);
+        assert.equal((result as RequestError).code, statusCode);
+        assert.equal((result as RequestError).message, body);
         sandbox.verify();
         assert(scope.isDone());
     });

@@ -1,4 +1,3 @@
-// tslint:disable:max-classes-per-file
 /**
  * API Service Library for Javascript
  */

@@ -53,4 +53,5 @@ async function main() {
 
 main().catch((error) => {
     console.dir(error, { depth: null });
+    console.log(error.name);
 });

@@ -1,4 +1,4 @@
-// tslint:disable:no-implicit-dependencies
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * transporter test
  */
@@ -60,7 +60,6 @@ describe('fetchWithTimeout()', () => {
 
         scope = nock(API_ENDPOINT)
             .get('/uri')
-            // tslint:disable-next-line:no-magic-numbers
             .delay(3000)
             .reply(OK, body);
 
@@ -152,7 +151,6 @@ describe('fetchWithTimeout()', () => {
 //             .reply(async () => {
 //                 // 1. ここで意図的にレスポンスを遅らせる
 //                 // タイムアウト設定(1ms)よりも長い時間を指定します
-//                 // // tslint:disable-next-line:no-magic-numbers
 //                 await new Promise((resolve) => setTimeout(resolve, 100));
 
 //                 return {
@@ -162,7 +160,6 @@ describe('fetchWithTimeout()', () => {
 //             });
 //         // scope = nock(API_ENDPOINT)
 //         //     .get('/uri')
-//         //     // tslint:disable-next-line:no-magic-numbers
 //         //     .delay(3000)
 //         //     .reply(OK, body);
 

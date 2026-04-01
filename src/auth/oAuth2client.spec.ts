@@ -1,4 +1,3 @@
-// tslint:disable:no-implicit-dependencies
 /**
  * OAuth2 client test
  */
@@ -13,12 +12,10 @@ import * as client from '../index';
  * テスト認証情報リポジトリ
  */
 export class StubCredentialsRepo implements AbstractCredentialsRepo {
-    // tslint:disable-next-line:prefer-function-over-method
     public async save(): Promise<void> {
         // no op
     }
 
-    // tslint:disable-next-line:prefer-function-over-method
     public async find() {
         return {
             token_type: 'Bearer',
@@ -146,7 +143,6 @@ before(() => {
 //         assert(scope.isDone());
 //     });
 
-//     // tslint:disable-next-line:mocha-no-side-effect-code
 //     [BAD_REQUEST, INTERNAL_SERVER_ERROR].forEach((statusCode) => {
 //         it(`認可サーバーが次のステータスコードを返却されば、トークンを取得できないはず  ${statusCode}`, async () => {
 //             scope = nock(`https://${DOMAIN}`)
@@ -217,7 +213,6 @@ describe('refreshAccessToken()', () => {
         assert(refreshAccessTokenError instanceof Error);
     });
 
-    // tslint:disable-next-line:mocha-no-side-effect-code
     [BAD_REQUEST, INTERNAL_SERVER_ERROR].forEach((statusCode) => {
         it(`認可サーバーが次のステータスコードを返却されば、アクセストークンをリフレッシュできないはず  ${statusCode}`, async () => {
             const scope = nock(`https://${DOMAIN}`)
@@ -603,7 +598,6 @@ describe('fetch()', () => {
         auth.credentials = {
             access_token: 'initial-access-token',
             refresh_token: 'refresh-token-placeholder',
-            // tslint:disable-next-line:no-magic-numbers
             expiry_date: (new Date()).getTime() - 1000
         };
 
@@ -623,7 +617,6 @@ describe('fetch()', () => {
         auth.credentials = {
             access_token: 'initial-access-token',
             refresh_token: 'refresh-token-placeholder',
-            // tslint:disable-next-line:no-magic-numbers
             expiry_date: (new Date()).getTime() + 1000
         };
 
@@ -649,12 +642,10 @@ describe('fetch()', () => {
         assert(!scope.isDone());
     });
 
-    // tslint:disable-next-line:mocha-no-side-effect-code
     [UNAUTHORIZED, FORBIDDEN].forEach((statusCode) => {
         it(`リソースサーバーが次のステータスコードを返却されば、アクセストークンはリフレッシュされるはず  ${statusCode}`, async () => {
             nock(API_ENDPOINT)
                 .get('/access')
-                // tslint:disable-next-line:no-magic-numbers
                 .times(2)
                 .reply(statusCode, { error: { code: statusCode, message: 'Invalid Credentials' } });
 
@@ -676,12 +667,11 @@ describe('fetch()', () => {
         });
     });
 
-    // tslint:disable-next-line:mocha-no-side-effect-code
     [{}, undefined, null].forEach((headers) => {
         it(`オプションに指定されたヘッダーが${typeof headers}の場合、正常に動作するはず`, async () => {
             const options = {
                 method: 'GET',
-                headers: <any>headers
+                headers: headers as Record<string, string>
             };
             const auth = new client.auth.OAuth2({
                 domain: DOMAIN,

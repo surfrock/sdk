@@ -1,4 +1,4 @@
-// tslint:disable:no-implicit-dependencies
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Seat service test
  */
@@ -46,7 +46,7 @@ describe('着券サービス', () => {
             method: 'POST',
             path: (p: string) => p.includes('/seat/seatInfoSync')
         }).reply(OK, data);
-        const result = await seatService.seatInfoSync(<any>{});
+        const result = await seatService.seatInfoSync({} as any);
         assert.deepEqual(result, data);
         sandbox.verify();
     });
@@ -62,7 +62,7 @@ describe('着券サービス', () => {
             method: 'POST',
             path: (p: string) => p.includes('/seat/seatInfoSyncCancel')
         }).reply(OK, data);
-        const result = await seatService.seatInfoSyncCancel(<any>{});
+        const result = await seatService.seatInfoSyncCancel({} as any);
         assert.deepEqual(result, data);
         sandbox.verify();
     });

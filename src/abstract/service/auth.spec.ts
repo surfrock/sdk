@@ -1,4 +1,4 @@
-// tslint:disable:no-implicit-dependencies
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * Auth service test
  */
@@ -50,7 +50,7 @@ describe('認証サービス', () => {
             path: (p: string) => p.includes('/auth/purchaseNumberAuth')
         }).reply(OK, data);
 
-        const result = await authService.purchaseNumberAuth(<any>{});
+        const result = await authService.purchaseNumberAuth({} as any);
         assert.deepEqual(result, data);
         sandbox.verify();
     });

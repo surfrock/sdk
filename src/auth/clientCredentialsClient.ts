@@ -22,7 +22,6 @@ export class ClientCredentialsClient extends OAuth2client {
     public options: IOptions;
 
     constructor(options: IOptions) {
-        // tslint:disable-next-line:no-suspicious-comment
         // TODO add minimum validation
 
         super(options);
@@ -63,18 +62,16 @@ export class ClientCredentialsClient extends OAuth2client {
             debug('response:', response.status);
             if (response.status !== httpStatus.OK) {
                 if (response.status === httpStatus.BAD_REQUEST) {
-                    const body = await response.json() as any;
+                    const body = await response.json() as { error?: string };
                     throw new Error(body.error);
                 } else {
                     const body = await response.text();
                     throw new Error(body);
                 }
             } else {
-                const tokens = await response.json() as any;
-                // tslint:disable-next-line:no-single-line-block-comment
+                const tokens = await response.json() as { expires_in?: number; expiry_date?: number; refresh_token?: string };
                 /* istanbul ignore else */
                 if (tokens && tokens.expires_in) {
-                    // tslint:disable-next-line:no-magic-numbers
                     tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
                     delete tokens.expires_in;
                 }

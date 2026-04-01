@@ -1,4 +1,4 @@
-// import * as qs from 'qs';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { AuthClient } from './auth/authClient';
 import { DefaultTransporter, IRequestOptions, Transporter } from './transporters';
@@ -46,7 +46,6 @@ export class Service {
     constructor(options: IOptions, requestOptions?: IRequestOptions) {
         this.options = options;
         this.requestOptions = {};
-        // tslint:disable-next-line:no-single-line-block-comment
         /* istanbul ignore else */
         if (requestOptions !== undefined) {
             this.requestOptions = { ...this.requestOptions, ...requestOptions };
@@ -60,7 +59,6 @@ export class Service {
             headers: {},
             method: 'GET'
         };
-        // tslint:disable-next-line:no-parameter-reassignment
         options = { ...defaultOptions, ...options };
 
         const baseUrl = this.options.endpoint;

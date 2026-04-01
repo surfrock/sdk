@@ -11,7 +11,7 @@ import { ICredentials } from './credentials';
 import { AbstractCredentialsRepo } from './repo/credentials';
 
 const debug = createDebug('surfrock-sdk:auth:oAuth2client');
-export const DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS: number = 20000;
+export const DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS = 20000;
 
 export interface IGenerateAuthUrlOpts {
     scopes: string[];
@@ -71,7 +71,6 @@ export class OAuth2client implements Auth {
     public options: IOptions;
 
     constructor(options: IOptions) {
-        // tslint:disable-next-line:no-suspicious-comment
         // TODO add minimum validation
 
         this.options = options;
@@ -167,10 +166,8 @@ export class OAuth2client implements Auth {
     //             }
     //         } else {
     //             const tokens = await response.json() as any;
-    //             // tslint:disable-next-line:no-single-line-block-comment
     //             /* istanbul ignore else */
     //             if (tokens && tokens.expires_in) {
-    //                 // tslint:disable-next-line:no-magic-numbers
     //                 tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
     //                 delete tokens.expires_in;
     //             }
@@ -223,7 +220,6 @@ export class OAuth2client implements Auth {
             }
         }
 
-        // tslint:disable-next-line:max-line-length
         const expiryDate = this.credentials.expiry_date;
 
         // if no expiry time, assume it's not expired
@@ -238,7 +234,7 @@ export class OAuth2client implements Auth {
             await this.refreshAccessToken();
         }
 
-        return <string>this.credentials.access_token;
+        return this.credentials.access_token as string;
     }
 
     /**
@@ -261,25 +257,25 @@ export class OAuth2client implements Auth {
 
         options.headers = (options.headers === undefined || options.headers === null) ? {} : options.headers;
 
-        let result: any;
+        // let result: Response;
         let numberOfTry = 0;
-        // tslint:disable-next-line:no-magic-numbers
-        while (numberOfTry >= 0) {
+        while (true) {
             try {
                 numberOfTry += 1;
+                // 1リトライしたら、もうリトライしない
                 if (numberOfTry > 1) {
                     retry = false;
                 }
 
-                (<any>options.headers).Authorization = `Bearer ${await this.getAccessToken()}`;
-                result = await this.makeFetch(url, options, requestOptions, expectedStatusCodes);
-
-                break;
+                (options.headers as Record<string, string>).Authorization = `Bearer ${await this.getAccessToken()}`;
+                // result = await this.makeFetch(url, options, requestOptions, expectedStatusCodes);
+                // 変数に代入せず、そのまま return して関数を抜ける
+                return await this.makeFetch(url, options, requestOptions, expectedStatusCodes);
+                // break;
             } catch (error) {
-                // tslint:disable-next-line:no-single-line-block-comment
                 /* istanbul ignore else */
                 if (error instanceof Error) {
-                    const statusCode = (<transporters.RequestError>error).code;
+                    const statusCode = (error as transporters.RequestError).code;
 
                     if (retry && (statusCode === UNAUTHORIZED || statusCode === FORBIDDEN)) {
                         /* It only makes sense to retry once, because the retry is intended
@@ -298,14 +294,13 @@ export class OAuth2client implements Auth {
             }
         }
 
-        return result;
+        // return result;
     }
 
     /**
      * Makes a request without paying attention to refreshing or anything
      * Assumes that all credentials are set correctly.
      */
-    // tslint:disable-next-line:prefer-function-over-method
     protected async makeFetch(
         url: string, options: RequestInit, requestOptions: transporters.IRequestOptions, expectedStatusCodes: number[]
     ) {
@@ -348,18 +343,16 @@ export class OAuth2client implements Auth {
             debug('response:', response.status);
             if (response.status !== OK) {
                 if (response.status === BAD_REQUEST) {
-                    const body = await response.json() as any;
+                    const body = await response.json() as { error?: string };
                     throw new Error(body.error);
                 } else {
                     const body = await response.text();
                     throw new Error(body);
                 }
             } else {
-                const tokens = await response.json() as any;
-                // tslint:disable-next-line:no-single-line-block-comment
+                const tokens = await response.json() as { expires_in?: number; expiry_date?: number };
                 /* istanbul ignore else */
                 if (tokens && tokens.expires_in) {
-                    // tslint:disable-next-line:no-magic-numbers
                     tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
                     delete tokens.expires_in;
                 }

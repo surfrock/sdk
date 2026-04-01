@@ -1,4 +1,4 @@
-// tslint:disable:no-implicit-dependencies
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /**
  * service test
  */
@@ -53,7 +53,7 @@ describe('fetch()', () => {
             .once()
             .resolves(response);
 
-        const result = await service.fetch(<any>{});
+        const result = await service.fetch({} as any);
 
         assert.deepEqual(result, response);
         sandbox.verify();
@@ -67,7 +67,7 @@ describe('fetch()', () => {
             transporter: new StubTransporter(response)
         });
 
-        const result = await service.fetch(<any>{});
+        const result = await service.fetch({} as any);
         assert.deepEqual(await result.json(), JSON.parse(response));
         sandbox.verify();
     });
@@ -139,7 +139,7 @@ describe('fetch()', () => {
             .expects('fetch')
             .once();
 
-        await service.fetch(<any>options);
+        await service.fetch(options as any);
         sandbox.verify();
     });
 });
