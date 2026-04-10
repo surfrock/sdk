@@ -23,4 +23,4 @@ interface ICredentials {
    */
   token_type?: string;
 }
-export default ICredentials;
+export { ICredentials };

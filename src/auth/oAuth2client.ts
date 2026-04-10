@@ -1,18 +1,17 @@
 /**
  * OAuth2クライアント
  */
-import * as crypto from 'crypto';
-import * as createDebug from 'debug';
-import { BAD_REQUEST, FORBIDDEN, OK, UNAUTHORIZED } from 'http-status';
-// import * as fetch from 'isomorphic-fetch';
-import * as querystring from 'querystring';
+import createDebug from 'debug';
+import { status } from '../httpStatus';
+import { stringify } from 'querystring';
 
-import { Auth, transporters } from '../abstract';
-import ICredentials from './credentials';
-import { ITokenPayload, LoginTicket } from './loginTicket';
+import { AuthClient } from '../auth/authClient';
+import { IRequestOptions, RequestError, DefaultTransporter, fetchWithTimeout } from '../transporters';
+import { ICredentials } from './credentials';
+import { AbstractCredentialsRepo } from './repo/credentials';
 
-const debug = createDebug('mocoin-api-nodejs-client:auth:oAuth2client');
-export const DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS: number = 20000;
+const debug = createDebug('surfrock-sdk:auth:oAuth2client');
+export const DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS = 20000;
 
 export interface IGenerateAuthUrlOpts {
     scopes: string[];
@@ -33,148 +32,29 @@ export interface IOptions {
     nonce?: string | null;
     audience?: string;
     tokenIssuer?: string;
-}
-
-export interface IVerifyIdTokenOptions {
-    audience?: string | string[];
-    maxExpiry?: number;
+    /**
+     * カスタム認証情報リポジトリ
+     */
+    credentialsRepo?: AbstractCredentialsRepo;
 }
 
 /**
  * OAuth2 client
  */
-export default class OAuth2client implements Auth {
-    /**
-     * The base URL for auth endpoints.
-     */
-    protected static readonly OAUTH2_AUTH_BASE_URI: string = '/authorize';
-
+export class OAuth2client implements AuthClient {
     /**
      * The base endpoint for token retrieval.
      */
     protected static readonly OAUTH2_TOKEN_URI: string = '/token';
 
-    /**
-     * The base endpoint to revoke tokens.
-     */
-    protected static readonly OAUTH2_LOGOUT_URI: string = '/logout';
-
-    /**
-     * certificates.
-     */
-    // protected static readonly OAUTH2_FEDERATED_SIGNON_CERTS_URL = 'https://www.example.com/oauth2/v1/certs';
-
     public credentials: ICredentials;
     public options: IOptions;
 
     constructor(options: IOptions) {
-        // tslint:disable-next-line:no-suspicious-comment
         // TODO add minimum validation
 
         this.options = options;
         this.credentials = {};
-    }
-
-    public static BASE64URLENCODE(str: Buffer) {
-        return str.toString('base64')
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=/g, '');
-    }
-
-    public static SHA256(buffer: any) {
-        return crypto.createHash('sha256').update(buffer).digest();
-    }
-
-    /**
-     * Generates URL for consent page landing.
-     */
-    public generateAuthUrl(optOpts: IGenerateAuthUrlOpts) {
-        const options: any = {
-            response_type: 'code',
-            client_id: this.options.clientId,
-            redirect_uri: this.options.redirectUri,
-            scope: optOpts.scopes.join(' '),
-            state: optOpts.state
-        };
-
-        if (optOpts.codeVerifier !== undefined) {
-            options.code_challenge_method = 'S256';
-            options.code_challenge = OAuth2client.BASE64URLENCODE(OAuth2client.SHA256(optOpts.codeVerifier));
-        }
-
-        const rootUrl = `https://${this.options.domain}${OAuth2client.OAUTH2_AUTH_BASE_URI}`;
-
-        return `${rootUrl}?${querystring.stringify(options)}`;
-    }
-
-    /**
-     * Generates URL for logout.
-     */
-    public generateLogoutUrl() {
-        const options: any = {
-            client_id: this.options.clientId,
-            logout_uri: this.options.logoutUri
-        };
-
-        const rootUrl = `https://${this.options.domain}${OAuth2client.OAUTH2_LOGOUT_URI}`;
-
-        return `${rootUrl}?${querystring.stringify(options)}`;
-    }
-
-    /**
-     * Gets the access token for the given code.
-     * @param code The authorization code.
-     */
-    public async getToken(code: string, codeVerifier?: string): Promise<ICredentials> {
-        const form = {
-            code: code,
-            client_id: this.options.clientId,
-            redirect_uri: this.options.redirectUri,
-            grant_type: 'authorization_code',
-            code_verifier: codeVerifier
-        };
-        const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
-        const options: RequestInit = {
-            body: querystring.stringify(form),
-            method: 'POST',
-            headers: {
-                Authorization: `Basic ${secret}`,
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-        };
-
-        debug('fetching...', options);
-
-        // timeout設定(2022-12-03~)
-        return transporters.fetchWithTimeout(
-            // return fetch(
-            `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
-            options,
-            { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
-        ).then(async (response) => {
-            debug('response:', response.status);
-            if (response.status !== OK) {
-                if (response.status === BAD_REQUEST) {
-                    const body = await response.json();
-                    throw new Error(body.error);
-                } else {
-                    const body = await response.text();
-                    throw new Error(body);
-                }
-            } else {
-                const tokens = await response.json();
-                // tslint:disable-next-line:no-single-line-block-comment
-                /* istanbul ignore else */
-                if (tokens && tokens.expires_in) {
-                    // tslint:disable-next-line:no-magic-numbers
-                    tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
-                    delete tokens.expires_in;
-                }
-
-                return tokens;
-            }
-        });
     }
 
     /**
@@ -195,6 +75,12 @@ export default class OAuth2client implements Auth {
         debug('setting credentials...', tokens);
         this.credentials = tokens;
 
+        // save in remote(2024-11-20~)
+        if (this.options.credentialsRepo !== undefined) {
+            debug('saving in repo...', this.credentials);
+            await this.options.credentialsRepo.save(this.credentials);
+        }
+
         return this.credentials;
     }
 
@@ -203,7 +89,17 @@ export default class OAuth2client implements Auth {
      * 必要であれば更新してから取得します。
      */
     public async getAccessToken(): Promise<string> {
-        // tslint:disable-next-line:max-line-length
+        // find from remote(2024-11-20~)
+        if (typeof this.credentials.access_token !== 'string') {
+            if (this.options.credentialsRepo !== undefined) {
+                const credentialsFromRepo = await this.options.credentialsRepo.find();
+                debug('credentials in repo found,', credentialsFromRepo);
+                if (typeof credentialsFromRepo?.access_token === 'string') {
+                    this.credentials = credentialsFromRepo;
+                }
+            }
+        }
+
         const expiryDate = this.credentials.expiry_date;
 
         // if no expiry time, assume it's not expired
@@ -218,55 +114,8 @@ export default class OAuth2client implements Auth {
             await this.refreshAccessToken();
         }
 
-        return <string>this.credentials.access_token;
+        return this.credentials.access_token as string;
     }
-
-    // public async signInWithLINE(idToken: string): Promise<ICredentials> {
-    //     // request for new token
-    //     debug('requesting access token...');
-
-    //     return await request.post({
-    //         url: `${API_ENDPOINT}/oauth/token/signInWithGoogle`,
-    //         body: {
-    //             idToken: idToken,
-    //             client_id: this.clientId,
-    //             client_secret: this.clientSecret,
-    //             scopes: this.scopes,
-    //             state: this.state
-    //         },
-    //         json: true,
-    //         simple: false,
-    //         resolveWithFullResponse: true,
-    //         useQuerystring: true
-    //     }).then((response) => {
-    //         if (response.statusCode !== httpStatus.OK) {
-    //             if (typeof response.body === 'string') {
-    //                 throw new Error(response.body);
-    //             }
-
-    //             if (typeof response.body === 'object' && response.body.errors !== undefined) {
-    //                 const message = (<any[]>response.body.errors).map((error) => {
-    //                     return `[${error.title}]${error.detail}`;
-    //                 }).join(', ');
-
-    //                 throw new Error(message);
-    //             }
-
-    //             throw new Error('An unexpected error occurred');
-    //         }
-
-    //         const tokens = response.body;
-    //         if (tokens && tokens.expires_in) {
-    //             // tslint:disable-next-line:no-magic-numbers
-    //             tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
-    //             delete tokens.expires_in;
-    //         }
-
-    //         this.credentials = tokens;
-
-    //         return tokens;
-    //     });
-    // }
 
     /**
      * Revokes the access given to token.
@@ -282,33 +131,33 @@ export default class OAuth2client implements Auth {
      * access token and replays the unsuccessful request.
      * @param options Request options.
      */
-    public async fetch(url: string, options: RequestInit, requestOptions: transporters.IRequestOptions, expectedStatusCodes: number[]) {
+    public async fetch(url: string, options: RequestInit, requestOptions: IRequestOptions, expectedStatusCodes: number[]) {
         // Callbacks will close over this to ensure that we only retry once
         let retry = true;
 
         options.headers = (options.headers === undefined || options.headers === null) ? {} : options.headers;
 
-        let result: any;
+        // let result: Response;
         let numberOfTry = 0;
-        // tslint:disable-next-line:no-magic-numbers
-        while (numberOfTry >= 0) {
+        while (true) {
             try {
                 numberOfTry += 1;
+                // 1リトライしたら、もうリトライしない
                 if (numberOfTry > 1) {
                     retry = false;
                 }
 
-                (<any>options.headers).Authorization = `Bearer ${await this.getAccessToken()}`;
-                result = await this.makeFetch(url, options, requestOptions, expectedStatusCodes);
-
-                break;
+                (options.headers as Record<string, string>).Authorization = `Bearer ${await this.getAccessToken()}`;
+                // result = await this.makeFetch(url, options, requestOptions, expectedStatusCodes);
+                // 変数に代入せず、そのまま return して関数を抜ける
+                return await this.makeFetch(url, options, requestOptions, expectedStatusCodes);
+                // break;
             } catch (error) {
-                // tslint:disable-next-line:no-single-line-block-comment
                 /* istanbul ignore else */
                 if (error instanceof Error) {
-                    const statusCode = (<transporters.RequestError>error).code;
+                    const statusCode = (error as RequestError).code;
 
-                    if (retry && (statusCode === UNAUTHORIZED || statusCode === FORBIDDEN)) {
+                    if (retry && (statusCode === status.UNAUTHORIZED || statusCode === status.FORBIDDEN)) {
                         /* It only makes sense to retry once, because the retry is intended
                          * to handle expiration-related failures. If refreshing the token
                          * does not fix the failure, then refreshing again probably won't
@@ -325,58 +174,17 @@ export default class OAuth2client implements Auth {
             }
         }
 
-        return result;
+        // return result;
     }
-
-    /**
-     * IDトークンを検証する
-     * 結果にはIDトークンの付加情報が含まれます。
-     */
-    public verifyIdToken(options: IVerifyIdTokenOptions): LoginTicket {
-        if (this.credentials.id_token === undefined) {
-            throw new Error('The verifyIdToken method requires an ID Token');
-        }
-
-        // return this.verifySignedJwt(options.idToken, options.audience, OAuth2Client.ISSUERS_);
-        return this.verifySignedJwt(this.credentials.id_token, options.audience);
-    }
-
-    /**
-     * Provides a request implementation with OAuth 2.0 flow.
-     * If credentials have a refresh_token, in cases of HTTP
-     * 401 and 403 responses, it automatically asks for a new
-     * access token and replays the unsuccessful request.
-     * @param options Request options.
-     */
-    // public async request(options: request.OptionsWithUri, expectedStatusCodes: number[]) {
-    //     const accessToken = await this.getAccessToken();
-    //     options.auth = { bearer: accessToken };
-
-    //     return this.makeRequest(options, expectedStatusCodes);
-    // }
-
-    /**
-     * Makes a request without paying attention to refreshing or anything
-     * Assumes that all credentials are set correctly.
-     * @param opts Options for request
-     * @param callback callback function
-     */
-    // tslint:disable-next-line:prefer-function-over-method
-    // public async makeRequest(options: request.OptionsWithUri, expectedStatusCodes: number[]) {
-    //     const transporter = new DefaultTransporter(expectedStatusCodes);
-
-    //     return transporter.request(options);
-    // }
 
     /**
      * Makes a request without paying attention to refreshing or anything
      * Assumes that all credentials are set correctly.
      */
-    // tslint:disable-next-line:prefer-function-over-method
     protected async makeFetch(
-        url: string, options: RequestInit, requestOptions: transporters.IRequestOptions, expectedStatusCodes: number[]
+        url: string, options: RequestInit, requestOptions: IRequestOptions, expectedStatusCodes: number[]
     ) {
-        const transporter = new transporters.DefaultTransporter(expectedStatusCodes);
+        const transporter = new DefaultTransporter(expectedStatusCodes);
 
         return transporter.fetch(url, options, requestOptions);
     }
@@ -395,7 +203,7 @@ export default class OAuth2client implements Auth {
         };
         const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
         const options: RequestInit = {
-            body: querystring.stringify(form),
+            body: stringify(form),
             method: 'POST',
             headers: {
                 Authorization: `Basic ${secret}`,
@@ -403,30 +211,26 @@ export default class OAuth2client implements Auth {
             }
         };
 
-        debug('fetching...', options);
-
         // timeout設定(2022-12-03~)
-        return transporters.fetchWithTimeout(
+        return fetchWithTimeout(
             // return fetch(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             options,
             { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
             debug('response:', response.status);
-            if (response.status !== OK) {
-                if (response.status === BAD_REQUEST) {
-                    const body = await response.json();
+            if (response.status !== status.OK) {
+                if (response.status === status.BAD_REQUEST) {
+                    const body = await response.json() as { error?: string };
                     throw new Error(body.error);
                 } else {
                     const body = await response.text();
                     throw new Error(body);
                 }
             } else {
-                const tokens = await response.json();
-                // tslint:disable-next-line:no-single-line-block-comment
+                const tokens = await response.json() as { expires_in?: number; expiry_date?: number };
                 /* istanbul ignore else */
                 if (tokens && tokens.expires_in) {
-                    // tslint:disable-next-line:no-magic-numbers
                     tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
                     delete tokens.expires_in;
                 }
@@ -434,79 +238,5 @@ export default class OAuth2client implements Auth {
                 return tokens;
             }
         });
-    }
-
-    /**
-     * Verify the id token is signed with the correct certificate
-     * and is from the correct audience.
-     * @param jwt The jwt to verify (The ID Token in this case).
-     * @param requiredAudience The audience to test the jwt against.
-     * @param issuers The allowed issuers of the jwt (Optional).
-     */
-    // tslint:disable-next-line:prefer-function-over-method
-    private verifySignedJwt(jwt: string, requiredAudience?: string | string[]) {
-        // private verifySignedJwt(jwt: string, requiredAudience: string | string[], issuers?: string[]) {
-        const segments = jwt.split('.');
-        // tslint:disable-next-line:no-magic-numbers
-        if (segments.length !== 3) {
-            throw new Error(`Wrong number of segments in token: ${jwt}`);
-        }
-        // const signed = `${segments[0]}.${segments[1]}`;
-        // // tslint:disable-next-line:no-magic-numbers
-        // const signature = segments[2];
-
-        let envelope: any;
-        let payload: ITokenPayload;
-
-        try {
-            envelope = JSON.parse(Buffer.from(segments[0], 'base64').toString('utf8'));
-        } catch (err) {
-            throw new Error(`Can't parse token envelope: ${segments[0]}`);
-        }
-
-        try {
-            payload = JSON.parse(Buffer.from(segments[1], 'base64').toString('utf8'));
-        } catch (err) {
-            throw new Error(`Can't parse token payload: ${segments[0]}`);
-        }
-
-        if (payload.iat === undefined) {
-            throw new Error(`No issue time in token: ${JSON.stringify(payload)}`);
-        }
-
-        if (payload.exp === undefined) {
-            throw new Error(`No expiration time in token: ${JSON.stringify(payload)}`);
-        }
-
-        if (isNaN(payload.iat)) {
-            throw new Error('iat field using invalid format');
-        }
-
-        if (isNaN(payload.exp)) {
-            throw new Error('exp field using invalid format');
-        }
-
-        // if (issuers !== undefined && issuers.indexOf(payload.iss) < 0) {
-        //     throw new Error(`Invalid issuer, expected one of [${issuers}], but got ${payload.iss}`);
-        // }
-
-        // Check the audience matches if we have one
-        // tslint:disable-next-line:no-single-line-block-comment
-        /* istanbul ignore else */
-        if (requiredAudience !== undefined) {
-            const aud = payload.aud;
-            let audVerified = false;
-            // If the requiredAudience is an array, check if it contains token
-            if (Array.isArray(requiredAudience)) {
-                audVerified = (requiredAudience.indexOf(aud) > -1);
-            } else {
-                audVerified = (aud === requiredAudience);
-            }
-            if (!audVerified) {
-                throw new Error('Wrong recipient, payload audience != requiredAudience');
-            }
-        }
-
-        return new LoginTicket({ envelope, payload });
     }
 }

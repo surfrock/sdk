@@ -18,6 +18,23 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+## v2.0.0 - 2026-04-10
+
+### Changed
+
+- OAuth2client: support CredentialsRepo
+- remove dependency on abstract-sdk
+- extend AbortError(requestOptions)
+- isomorphic-fetch -> native fetch
+- update typescript@5.6
+- support eslint
+- update debug@4
+- update @types/node@22
+- reimplement using @surfrock/factory
+- tsconfig: esModuleInterop: true
+- support vitest
+- reexport as { Surfrock }
+
 ## v1.3.0 - 2024-06-12
 
 ### Added

@@ -1,4 +1,0 @@
---no-timeouts
---recursive
---reporter spec
---require ts-node/register

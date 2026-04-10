@@ -1,32 +1,24 @@
-import * as createDebug from 'debug';
-import * as httpStatus from 'http-status';
-// import * as fetch from 'isomorphic-fetch';
-import * as querystring from 'querystring';
+import { status } from '../httpStatus';
+import { stringify } from 'querystring';
 
-import { transporters } from '../abstract';
-import ICredentials from './credentials';
-import { default as OAuth2client, DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS } from './oAuth2client';
+import { fetchWithTimeout } from '../transporters';
+import { ICredentials } from './credentials';
+import { DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS, IOptions as IOAuth2clientOptions, OAuth2client } from './oAuth2client';
 
-const debug = createDebug('surfrock-sdk:auth');
-
-export interface IOptions {
-    domain: string;
+export type IOptions = Pick<IOAuth2clientOptions, 'domain' | 'credentialsRepo'> & {
     clientId: string;
     clientSecret: string;
     scopes: string[];
     state: string;
-}
+};
 
 /**
  * クライアント認証OAuthクライアント
- *
- * @class ClientCredentialsClient
  */
-export default class ClientCredentialsClient extends OAuth2client {
+export class ClientCredentialsClient extends OAuth2client {
     public options: IOptions;
 
     constructor(options: IOptions) {
-        // tslint:disable-next-line:no-suspicious-comment
         // TODO add minimum validation
 
         super(options);
@@ -39,7 +31,6 @@ export default class ClientCredentialsClient extends OAuth2client {
      * クライアント認証でアクセストークンを取得します。
      */
     public async getToken(): Promise<ICredentials> {
-        debug('requesting an access token...');
         const form = {
             scope: this.options.scopes.join(' '),
             state: this.options.state,
@@ -47,8 +38,8 @@ export default class ClientCredentialsClient extends OAuth2client {
         };
         const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
         const options: RequestInit = {
-            credentials: 'include',
-            body: querystring.stringify(form),
+            // credentials: 'include', // 不要か(2025-07-31~)
+            body: stringify(form),
             method: 'POST',
             headers: {
                 Authorization: `Basic ${secret}`,
@@ -56,29 +47,24 @@ export default class ClientCredentialsClient extends OAuth2client {
             }
         };
 
-        debug('fetching...', options);
-
         // timeout設定(2022-12-03~)
-        return transporters.fetchWithTimeout(
+        return fetchWithTimeout(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             options,
             { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
-            debug('response:', response.status);
-            if (response.status !== httpStatus.OK) {
-                if (response.status === httpStatus.BAD_REQUEST) {
-                    const body = await response.json();
+            if (response.status !== status.OK) {
+                if (response.status === status.BAD_REQUEST) {
+                    const body = await response.json() as { error?: string };
                     throw new Error(body.error);
                 } else {
                     const body = await response.text();
                     throw new Error(body);
                 }
             } else {
-                const tokens = await response.json();
-                // tslint:disable-next-line:no-single-line-block-comment
+                const tokens = await response.json() as { expires_in?: number; expiry_date?: number; refresh_token?: string };
                 /* istanbul ignore else */
                 if (tokens && tokens.expires_in) {
-                    // tslint:disable-next-line:no-magic-numbers
                     tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
                     delete tokens.expires_in;
                 }
@@ -94,8 +80,6 @@ export default class ClientCredentialsClient extends OAuth2client {
      * Refreshes the access token.
      */
     protected async refreshToken(__: string): Promise<ICredentials> {
-        debug('refreshing an access token...');
-
         return this.getToken();
     }
 }
