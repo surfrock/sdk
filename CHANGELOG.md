@@ -10,6 +10,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Changed
 
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+## v2.0.0 - 2026-04-10
+
+### Changed
+
 - OAuth2client: support CredentialsRepo
 - remove dependency on abstract-sdk
 - extend AbortError(requestOptions)
@@ -22,14 +34,6 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - tsconfig: esModuleInterop: true
 - support vitest
 - reexport as { Surfrock }
-
-### Deprecated
-
-### Removed
-
-### Fixed
-
-### Security
 
 ## v1.3.0 - 2024-06-12
 
