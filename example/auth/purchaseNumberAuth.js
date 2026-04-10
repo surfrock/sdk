@@ -1,7 +1,7 @@
 /**
  * purchaseNumberAuth
  */
-const client = require('../../lib');
+const { Surfrock } = require('../../lib');
 const redis = require('redis');
 
 /**
@@ -73,7 +73,7 @@ async function main() {
     await redisClient.connect();
 
     // const credentialsRepo = new CredentialsRepo(redisClient, { scope: 'xxx' });
-    const authClient = new client.auth.ClientCredentials({
+    const authClient = new Surfrock.auth.ClientCredentials({
         domain: process.env.API_AUTHORIZE_SERVER_DOMAIN,
         clientId: process.env.API_CLIENT_ID,
         clientSecret: process.env.API_CLIENT_SECRET,
@@ -81,7 +81,7 @@ async function main() {
         state: ''
         // credentialsRepo
     });
-    const authService = new client.service.auth.AuthService(
+    const authService = new Surfrock.service.auth.AuthService(
         {
             endpoint: process.env.API_ENDPOINT,
             auth: authClient
@@ -94,11 +94,11 @@ async function main() {
     const result = await authService.purchaseNumberAuth({
         kgygishCd: 'SSK000', //興行会社コード
         // kgygishCd: 'xxx', //興行会社コード
-        jhshbtsCd: client.factory.service.auth.purchaseNumberAuth.InformationTypeCode.All, //情報種別コード
+        jhshbtsCd: Surfrock.factory.service.auth.purchaseNumberAuth.InformationTypeCode.All, //情報種別コード
         knyknrNoInfoIn: [
             {
                 knyknrNo: '3472695908', //購入管理番号
-                // knyknrNo: 'invalid', //購入管理番号
+                // knyknrNo: '0123456789', //購入管理番号
                 pinCd: '7648' // PINコード
             }
         ],

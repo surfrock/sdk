@@ -3,7 +3,7 @@
  */
 import createDebug from 'debug';
 import { status } from '../httpStatus';
-import * as querystring from 'querystring';
+import { stringify } from 'querystring';
 
 import { AuthClient } from '../auth/authClient';
 import { IRequestOptions, RequestError, DefaultTransporter, fetchWithTimeout } from '../transporters';
@@ -203,7 +203,7 @@ export class OAuth2client implements AuthClient {
         };
         const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
         const options: RequestInit = {
-            body: querystring.stringify(form),
+            body: stringify(form),
             method: 'POST',
             headers: {
                 Authorization: `Basic ${secret}`,

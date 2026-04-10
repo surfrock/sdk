@@ -1,5 +1,5 @@
 import { status } from '../httpStatus';
-import * as querystring from 'querystring';
+import { stringify } from 'querystring';
 
 import { fetchWithTimeout } from '../transporters';
 import { ICredentials } from './credentials';
@@ -39,7 +39,7 @@ export class ClientCredentialsClient extends OAuth2client {
         const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
         const options: RequestInit = {
             // credentials: 'include', // 不要か(2025-07-31~)
-            body: querystring.stringify(form),
+            body: stringify(form),
             method: 'POST',
             headers: {
                 Authorization: `Basic ${secret}`,

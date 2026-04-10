@@ -21,6 +21,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - reimplement using @surfrock/factory
 - tsconfig: esModuleInterop: true
 - support vitest
+- reexport as { Surfrock }
 
 ### Deprecated
 
