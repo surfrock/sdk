@@ -3,17 +3,7 @@
  * transporter test
  */
 import * as assert from 'assert';
-import {
-    // BAD_REQUEST,
-    // CREATED,
-    // FORBIDDEN,
-    // INTERNAL_SERVER_ERROR,
-    // NOT_FOUND,
-    // NOT_IMPLEMENTED,
-    OK
-    // UNAUTHORIZED
-} from 'http-status';
-// import * as fetch from 'isomorphic-fetch';
+import { status } from './httpStatus';
 import { } from 'mocha';
 import * as nock from 'nock';
 import * as sinon from 'sinon';
@@ -44,7 +34,7 @@ describe('fetchWithTimeout()', () => {
 
         scope = nock(API_ENDPOINT)
             .get('/uri')
-            .reply(OK, body);
+            .reply(status.OK, body);
 
         const result = await fetchWithTimeout(`${API_ENDPOINT}/uri`, {}, { timeout: 10000 })
             .then(async (res) => res.json());
@@ -61,7 +51,7 @@ describe('fetchWithTimeout()', () => {
         scope = nock(API_ENDPOINT)
             .get('/uri')
             .delay(3000)
-            .reply(OK, body);
+            .reply(status.OK, body);
 
         const result = await fetchWithTimeout(`${API_ENDPOINT}/uri`, {}, { timeout: 1 })
             .catch((err) => err);

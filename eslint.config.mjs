@@ -16,7 +16,6 @@ export default defineConfig(
     tseslint.configs.stylistic,
     {
         rules: {
-            '@typescript-eslint/no-namespace': 'off',
             '@typescript-eslint/no-unused-vars': [
                 'error',
                 {

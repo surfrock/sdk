@@ -3,11 +3,11 @@
  * Seat service test
  */
 import * as assert from 'assert';
-import { OK } from 'http-status';
+import { status } from '../httpStatus';
 import { } from 'mocha';
 import * as sinon from 'sinon';
 import { MockAgent, setGlobalDispatcher } from 'undici';
-import * as client from '../index';
+import { SeatService } from './seat';
 
 import { StubAuthClient } from '../auth/authClient';
 
@@ -37,7 +37,7 @@ describe('着券サービス', () => {
 
     it('着券結果が期待通り', async () => {
         const auth = new StubAuthClient();
-        const seatService = new client.service.seat.SeatService({
+        const seatService = new SeatService({
             auth: auth,
             endpoint: API_ENDPOINT
         });
@@ -45,7 +45,7 @@ describe('着券サービス', () => {
         mockPool.intercept({
             method: 'POST',
             path: (p: string) => p.includes('/seat/seatInfoSync')
-        }).reply(OK, data);
+        }).reply(status.OK, data);
         const result = await seatService.seatInfoSync({} as any);
         assert.deepEqual(result, data);
         sandbox.verify();
@@ -53,7 +53,7 @@ describe('着券サービス', () => {
 
     it('座席解放結果が期待通り', async () => {
         const auth = new StubAuthClient();
-        const seatService = new client.service.seat.SeatService({
+        const seatService = new SeatService({
             auth: auth,
             endpoint: API_ENDPOINT
         });
@@ -61,7 +61,7 @@ describe('着券サービス', () => {
         mockPool.intercept({
             method: 'POST',
             path: (p: string) => p.includes('/seat/seatInfoSyncCancel')
-        }).reply(OK, data);
+        }).reply(status.OK, data);
         const result = await seatService.seatInfoSyncCancel({} as any);
         assert.deepEqual(result, data);
         sandbox.verify();

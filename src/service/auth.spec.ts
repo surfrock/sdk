@@ -3,11 +3,11 @@
  * Auth service test
  */
 import * as assert from 'assert';
-import { OK } from 'http-status';
+import { status } from '../httpStatus';
 import { } from 'mocha';
 import * as sinon from 'sinon';
 import { MockAgent, setGlobalDispatcher } from 'undici';
-import * as client from '../index';
+import { AuthService } from './auth';
 
 import { StubAuthClient } from '../auth/authClient';
 
@@ -40,7 +40,7 @@ describe('認証サービス', () => {
 
     it('購入番号認証結果が期待通り', async () => {
         const auth = new StubAuthClient();
-        const authService = new client.service.auth.AuthService({
+        const authService = new AuthService({
             auth: auth,
             endpoint: API_ENDPOINT
         });
@@ -48,7 +48,7 @@ describe('認証サービス', () => {
         mockPool.intercept({
             method: 'POST',
             path: (p: string) => p.includes('/auth/purchaseNumberAuth')
-        }).reply(OK, data);
+        }).reply(status.OK, data);
 
         const result = await authService.purchaseNumberAuth({} as any);
         assert.deepEqual(result, data);

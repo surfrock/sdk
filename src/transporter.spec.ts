@@ -3,16 +3,7 @@
  * transporter test
  */
 import * as assert from 'assert';
-import {
-    BAD_REQUEST,
-    CREATED,
-    FORBIDDEN,
-    INTERNAL_SERVER_ERROR,
-    NOT_FOUND,
-    NOT_IMPLEMENTED,
-    OK,
-    UNAUTHORIZED
-} from 'http-status';
+import { status } from './httpStatus';
 // import * as fetch from 'isomorphic-fetch';
 import { } from 'mocha';
 import * as nock from 'nock';
@@ -38,7 +29,7 @@ describe('fetch()', () => {
         nock.enableNetConnect();
     });
 
-    [CREATED, OK].forEach((statusCode) => {
+    [status.CREATED, status.OK].forEach((statusCode) => {
         it(`次のステータスコードが返却されれば、レスポンスを取得できるはず ${statusCode}`, async () => {
             const body: any = { key: 'value' };
 
@@ -57,12 +48,12 @@ describe('fetch()', () => {
     });
 
     [
-        BAD_REQUEST,
-        FORBIDDEN,
-        INTERNAL_SERVER_ERROR,
-        NOT_FOUND,
-        NOT_IMPLEMENTED,
-        UNAUTHORIZED
+        status.BAD_REQUEST,
+        status.FORBIDDEN,
+        status.INTERNAL_SERVER_ERROR,
+        status.NOT_FOUND,
+        status.NOT_IMPLEMENTED,
+        status.UNAUTHORIZED
     ].forEach((statusCode) => {
         it(`次のステータスコードが返却されれば、リクエストエラーが投げられるはず ${statusCode}`, async () => {
             const body = {
@@ -73,7 +64,7 @@ describe('fetch()', () => {
                 }
             };
 
-            const transporter = new DefaultTransporter([OK]);
+            const transporter = new DefaultTransporter([status.OK]);
 
             scope = nock(API_ENDPOINT)
                 .get('/uri')
@@ -93,11 +84,11 @@ describe('fetch()', () => {
     it('timeoutを設定してもレスポンスを取得できるはず', async () => {
         const body: any = { key: 'value' };
 
-        const transporter = new DefaultTransporter([OK]);
+        const transporter = new DefaultTransporter([status.OK]);
 
         scope = nock(API_ENDPOINT)
             .get('/uri')
-            .reply(OK, body);
+            .reply(status.OK, body);
 
         const result = await transporter
             .fetch(`${API_ENDPOINT}/uri`, {}, { timeout: 10000 })
@@ -109,9 +100,9 @@ describe('fetch()', () => {
 
     it('レスポンスボディがjsonでなければ、適切なエラーが投げられるはず', async () => {
         const body = 'body text';
-        const statusCode = INTERNAL_SERVER_ERROR;
+        const statusCode = status.INTERNAL_SERVER_ERROR;
 
-        const transporter = new DefaultTransporter([OK]);
+        const transporter = new DefaultTransporter([status.OK]);
 
         scope = nock(API_ENDPOINT)
             .get('/uri')

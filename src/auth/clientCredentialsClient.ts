@@ -1,8 +1,8 @@
 import * as createDebug from 'debug';
-import * as httpStatus from 'http-status';
+import { status } from '../httpStatus';
 import * as querystring from 'querystring';
 
-import { transporters } from '../abstract';
+import { fetchWithTimeout } from '../transporters';
 import { ICredentials } from './credentials';
 import { DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS, IOptions as IOAuth2clientOptions, OAuth2client } from './oAuth2client';
 
@@ -54,14 +54,14 @@ export class ClientCredentialsClient extends OAuth2client {
         debug('fetching...', options);
 
         // timeout設定(2022-12-03~)
-        return transporters.fetchWithTimeout(
+        return fetchWithTimeout(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             options,
             { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
             debug('response:', response.status);
-            if (response.status !== httpStatus.OK) {
-                if (response.status === httpStatus.BAD_REQUEST) {
+            if (response.status !== status.OK) {
+                if (response.status === status.BAD_REQUEST) {
                     const body = await response.json() as { error?: string };
                     throw new Error(body.error);
                 } else {

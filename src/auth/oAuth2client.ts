@@ -1,12 +1,12 @@
 /**
  * OAuth2クライアント
  */
-// import * as crypto from 'crypto';
 import * as createDebug from 'debug';
-import { BAD_REQUEST, FORBIDDEN, OK, UNAUTHORIZED } from 'http-status';
+import { status } from '../httpStatus';
 import * as querystring from 'querystring';
 
-import { Auth, transporters } from '../abstract';
+import { AuthClient } from '../auth/authClient';
+import { IRequestOptions, RequestError, DefaultTransporter, fetchWithTimeout } from '../transporters';
 import { ICredentials } from './credentials';
 import { AbstractCredentialsRepo } from './repo/credentials';
 
@@ -38,34 +38,14 @@ export interface IOptions {
     credentialsRepo?: AbstractCredentialsRepo;
 }
 
-// export interface IVerifyIdTokenOptions {
-//     audience?: string | string[];
-//     maxExpiry?: number;
-// }
-
 /**
  * OAuth2 client
  */
-export class OAuth2client implements Auth {
-    // /**
-    //  * The base URL for auth endpoints.
-    //  */
-    // protected static readonly OAUTH2_AUTH_BASE_URI: string = '/authorize';
-
+export class OAuth2client implements AuthClient {
     /**
      * The base endpoint for token retrieval.
      */
     protected static readonly OAUTH2_TOKEN_URI: string = '/token';
-
-    // /**
-    //  * The base endpoint to revoke tokens.
-    //  */
-    // protected static readonly OAUTH2_LOGOUT_URI: string = '/logout';
-
-    /**
-     * certificates.
-     */
-    // protected static readonly OAUTH2_FEDERATED_SIGNON_CERTS_URL = 'https://www.example.com/oauth2/v1/certs';
 
     public credentials: ICredentials;
     public options: IOptions;
@@ -76,106 +56,6 @@ export class OAuth2client implements Auth {
         this.options = options;
         this.credentials = {};
     }
-
-    // public static BASE64URLENCODE(str: Buffer) {
-    //     return str.toString('base64')
-    //         .replace(/\+/g, '-')
-    //         .replace(/\//g, '_')
-    //         .replace(/=/g, '');
-    // }
-
-    // public static SHA256(buffer: any) {
-    //     return crypto.createHash('sha256').update(buffer).digest();
-    // }
-
-    // /**
-    //  * Generates URL for consent page landing.
-    //  */
-    // public generateAuthUrl(optOpts: IGenerateAuthUrlOpts) {
-    //     const options: any = {
-    //         response_type: 'code',
-    //         client_id: this.options.clientId,
-    //         redirect_uri: this.options.redirectUri,
-    //         scope: optOpts.scopes.join(' '),
-    //         state: optOpts.state
-    //     };
-
-    //     if (optOpts.codeVerifier !== undefined) {
-    //         options.code_challenge_method = 'S256';
-    //         options.code_challenge = OAuth2client.BASE64URLENCODE(OAuth2client.SHA256(optOpts.codeVerifier));
-    //     }
-
-    //     const rootUrl = `https://${this.options.domain}${OAuth2client.OAUTH2_AUTH_BASE_URI}`;
-
-    //     return `${rootUrl}?${querystring.stringify(options)}`;
-    // }
-
-    // /**
-    //  * Generates URL for logout.
-    //  */
-    // public generateLogoutUrl() {
-    //     const options: any = {
-    //         client_id: this.options.clientId,
-    //         logout_uri: this.options.logoutUri
-    //     };
-
-    //     const rootUrl = `https://${this.options.domain}${OAuth2client.OAUTH2_LOGOUT_URI}`;
-
-    //     return `${rootUrl}?${querystring.stringify(options)}`;
-    // }
-
-    // /**
-    //  * Gets the access token for the given code.
-    //  * @param code The authorization code.
-    //  */
-    // public async getToken(code: string, codeVerifier?: string): Promise<ICredentials> {
-    //     const form = {
-    //         code: code,
-    //         client_id: this.options.clientId,
-    //         redirect_uri: this.options.redirectUri,
-    //         grant_type: 'authorization_code',
-    //         code_verifier: codeVerifier
-    //     };
-    //     const secret = Buffer.from(`${this.options.clientId}:${this.options.clientSecret}`, 'utf8').toString('base64');
-    //     const options: RequestInit = {
-    //         body: querystring.stringify(form),
-    //         method: 'POST',
-    //         headers: {
-    //             Authorization: `Basic ${secret}`,
-    //             'Content-Type': 'application/x-www-form-urlencoded'
-    //         }
-    //     };
-
-    //     debug('fetching...', options);
-
-    //     // timeout設定(2022-12-03~)
-    //     return transporters.fetchWithTimeout(
-    //         // return fetch(
-    //         `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
-    //         options,
-    //         { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
-    //     ).then(async (response) => {
-    //         debug('response:', response.status);
-    //         if (response.status !== OK) {
-    //             if (response.status === BAD_REQUEST) {
-    //                 const body = await response.json() as any;
-    //                 throw new Error(body.error);
-    //             } else {
-    //                 const body = await response.text();
-    //                 throw new Error(body);
-    //             }
-    //         } else {
-    //             const tokens = await response.json() as any;
-    //             /* istanbul ignore else */
-    //             if (tokens && tokens.expires_in) {
-    //                 tokens.expiry_date = ((new Date()).getTime() + (tokens.expires_in * 1000));
-    //                 delete tokens.expires_in;
-    //             }
-
-    //             return tokens;
-    //         }
-    //     });
-    // }
 
     /**
      * OAuthクライアントに認証情報をセットします。
@@ -251,7 +131,7 @@ export class OAuth2client implements Auth {
      * access token and replays the unsuccessful request.
      * @param options Request options.
      */
-    public async fetch(url: string, options: RequestInit, requestOptions: transporters.IRequestOptions, expectedStatusCodes: number[]) {
+    public async fetch(url: string, options: RequestInit, requestOptions: IRequestOptions, expectedStatusCodes: number[]) {
         // Callbacks will close over this to ensure that we only retry once
         let retry = true;
 
@@ -275,9 +155,9 @@ export class OAuth2client implements Auth {
             } catch (error) {
                 /* istanbul ignore else */
                 if (error instanceof Error) {
-                    const statusCode = (error as transporters.RequestError).code;
+                    const statusCode = (error as RequestError).code;
 
-                    if (retry && (statusCode === UNAUTHORIZED || statusCode === FORBIDDEN)) {
+                    if (retry && (statusCode === status.UNAUTHORIZED || statusCode === status.FORBIDDEN)) {
                         /* It only makes sense to retry once, because the retry is intended
                          * to handle expiration-related failures. If refreshing the token
                          * does not fix the failure, then refreshing again probably won't
@@ -302,9 +182,9 @@ export class OAuth2client implements Auth {
      * Assumes that all credentials are set correctly.
      */
     protected async makeFetch(
-        url: string, options: RequestInit, requestOptions: transporters.IRequestOptions, expectedStatusCodes: number[]
+        url: string, options: RequestInit, requestOptions: IRequestOptions, expectedStatusCodes: number[]
     ) {
-        const transporter = new transporters.DefaultTransporter(expectedStatusCodes);
+        const transporter = new DefaultTransporter(expectedStatusCodes);
 
         return transporter.fetch(url, options, requestOptions);
     }
@@ -334,15 +214,15 @@ export class OAuth2client implements Auth {
         debug('fetching...', options);
 
         // timeout設定(2022-12-03~)
-        return transporters.fetchWithTimeout(
+        return fetchWithTimeout(
             // return fetch(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             options,
             { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
             debug('response:', response.status);
-            if (response.status !== OK) {
-                if (response.status === BAD_REQUEST) {
+            if (response.status !== status.OK) {
+                if (response.status === status.BAD_REQUEST) {
                     const body = await response.json() as { error?: string };
                     throw new Error(body.error);
                 } else {

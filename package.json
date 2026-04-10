@@ -53,8 +53,7 @@
     "undici": "7.24.6"
   },
   "dependencies": {
-    "@surfrock/factory": "1.0.0-alpha.1",
-    "debug": "4.4.3",
-    "http-status": "1.8.1"
+    "@surfrock/factory": "1.0.0",
+    "debug": "4.4.3"
   }
 }

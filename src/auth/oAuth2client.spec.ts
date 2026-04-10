@@ -2,11 +2,11 @@
  * OAuth2 client test
  */
 import * as assert from 'assert';
-import { BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, OK, UNAUTHORIZED } from 'http-status';
+import { status } from '../httpStatus';
 import * as nock from 'nock';
 import * as sinon from 'sinon';
 import { AbstractCredentialsRepo } from '../auth/repo/credentials';
-import * as client from '../index';
+import { OAuth2client } from './oAuth2client';
 
 /**
  * テスト認証情報リポジトリ
@@ -169,7 +169,7 @@ before(() => {
 
 describe('setCredentials()', () => {
     it('認証情報を正しくセットできる', async () => {
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -199,7 +199,7 @@ describe('refreshAccessToken()', () => {
     });
 
     it('リフレッシュトークンが設定されていなければ、アクセストークンをリフレッシュできないはず', async () => {
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -213,13 +213,13 @@ describe('refreshAccessToken()', () => {
         assert(refreshAccessTokenError instanceof Error);
     });
 
-    [BAD_REQUEST, INTERNAL_SERVER_ERROR].forEach((statusCode) => {
+    [status.BAD_REQUEST, status.INTERNAL_SERVER_ERROR].forEach((statusCode) => {
         it(`認可サーバーが次のステータスコードを返却されば、アクセストークンをリフレッシュできないはず  ${statusCode}`, async () => {
             const scope = nock(`https://${DOMAIN}`)
                 .post('/token')
                 .reply(statusCode, {});
 
-            const auth = new client.auth.OAuth2({
+            const auth = new OAuth2client({
                 domain: DOMAIN,
                 clientId: CLIENT_ID,
                 clientSecret: CLIENT_SECRET,
@@ -243,13 +243,13 @@ describe('refreshAccessToken()', () => {
     it('認証情報リポジトリをセットすれば、リポジトリへ保管するはず', async () => {
         const scope = nock(`https://${DOMAIN}`)
             .post('/token')
-            .reply(OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
+            .reply(status.OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
         const credentialsRepo = new StubCredentialsRepo();
         sandbox.mock(credentialsRepo)
             .expects('save')
             .once()
             .resolves();
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -448,7 +448,7 @@ describe('getAccessToken()', () => {
     });
 
     it('リフレッシュトークンもアクセストークンもなければ、アクセストークンを取得できないはず', async () => {
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -473,7 +473,7 @@ describe('getAccessToken()', () => {
                 refresh_token: 'ignored',
                 access_token: 'xxx'
             });
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -495,7 +495,7 @@ describe('getAccessToken()', () => {
             .expects('find')
             .once()
             .resolves(undefined);
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -528,7 +528,7 @@ describe('getAccessToken()', () => {
                 refresh_token: 'ignored'
                 // access_token: 'xxx' // <-アクセストークンが含まれない
             });
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -564,9 +564,9 @@ describe('fetch()', () => {
         nock.cleanAll();
         scope = nock(`https://${DOMAIN}`)
             .post('/token')
-            .reply(OK, { access_token: 'abc123', expires_in: 1 });
+            .reply(status.OK, { access_token: 'abc123', expires_in: 1 });
 
-        nock(API_ENDPOINT).get('/').reply(OK, {});
+        nock(API_ENDPOINT).get('/').reply(status.OK, {});
     });
 
     afterEach(() => {
@@ -574,7 +574,7 @@ describe('fetch()', () => {
     });
 
     it('アクセストークンがなければリフレッシュするはず', async () => {
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -583,12 +583,12 @@ describe('fetch()', () => {
 
         auth.credentials = { refresh_token: 'refresh-token-placeholder' };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [OK]);
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [status.OK]);
         assert.equal('abc123', auth.credentials.access_token);
     });
 
     it('アクセストークンの期限が切れていればリフレッシュされるはず', async () => {
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -601,13 +601,13 @@ describe('fetch()', () => {
             expiry_date: (new Date()).getTime() - 1000
         };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [OK]);
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [status.OK]);
         assert.equal('abc123', auth.credentials.access_token);
 
     });
 
     it('アクセストークンの期限が切れていなければリフレッシュされないはず', async () => {
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -620,12 +620,12 @@ describe('fetch()', () => {
             expiry_date: (new Date()).getTime() + 1000
         };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [OK]);
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [status.OK]);
         assert.equal('initial-access-token', auth.credentials.access_token);
     });
 
     it('アクセストークンの期限が設定されていなければ、期限は切れていないとみなすはず', async () => {
-        const auth = new client.auth.OAuth2({
+        const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -637,19 +637,19 @@ describe('fetch()', () => {
             refresh_token: 'refresh-token-placeholder'
         };
 
-        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [OK]);
+        await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [status.OK]);
         assert.equal('initial-access-token', auth.credentials.access_token);
         assert(!scope.isDone());
     });
 
-    [UNAUTHORIZED, FORBIDDEN].forEach((statusCode) => {
+    [status.UNAUTHORIZED, status.FORBIDDEN].forEach((statusCode) => {
         it(`リソースサーバーが次のステータスコードを返却されば、アクセストークンはリフレッシュされるはず  ${statusCode}`, async () => {
             nock(API_ENDPOINT)
                 .get('/access')
                 .times(2)
                 .reply(statusCode, { error: { code: statusCode, message: 'Invalid Credentials' } });
 
-            const auth = new client.auth.OAuth2({
+            const auth = new OAuth2client({
                 domain: DOMAIN,
                 clientId: CLIENT_ID,
                 clientSecret: CLIENT_SECRET,
@@ -661,7 +661,7 @@ describe('fetch()', () => {
                 refresh_token: 'refresh-token-placeholder'
             };
 
-            await auth.fetch(`${API_ENDPOINT}/access`, { method: 'GET' }, {}, [OK]).catch((err) => err);
+            await auth.fetch(`${API_ENDPOINT}/access`, { method: 'GET' }, {}, [status.OK]).catch((err) => err);
             assert.equal(auth.credentials.access_token, 'abc123');
             assert(scope.isDone());
         });
@@ -673,7 +673,7 @@ describe('fetch()', () => {
                 method: 'GET',
                 headers: headers as Record<string, string>
             };
-            const auth = new client.auth.OAuth2({
+            const auth = new OAuth2client({
                 domain: DOMAIN,
                 clientId: CLIENT_ID,
                 clientSecret: CLIENT_SECRET,
@@ -681,29 +681,8 @@ describe('fetch()', () => {
             });
             auth.credentials = { refresh_token: 'refresh-token-placeholder' };
 
-            await auth.fetch(`${API_ENDPOINT}/`, options, {}, [OK]);
+            await auth.fetch(`${API_ENDPOINT}/`, options, {}, [status.OK]);
             assert.equal('abc123', auth.credentials.access_token);
         });
     });
 });
-
-// describe('verifyIdToken()', () => {
-//     let auth: client.auth.OAuth2;
-//     // afterEach(() => {
-//     //     sandbox.restore();
-//     // });
-//     beforeEach(() => {
-//         sandbox.restore();
-//         nock.cleanAll();
-//         auth = new client.auth.OAuth2({
-//             domain: DOMAIN,
-//             clientId: CLIENT_ID,
-//             clientSecret: CLIENT_SECRET,
-//             redirectUri: REDIRECT_URI
-//         });
-//     });
-
-//     afterEach(() => {
-//         nock.cleanAll();
-//     });
-// });

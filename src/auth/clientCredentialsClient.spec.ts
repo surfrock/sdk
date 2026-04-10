@@ -3,9 +3,9 @@
  * @ignore
  */
 import * as assert from 'assert';
-import { BAD_REQUEST, INTERNAL_SERVER_ERROR, OK } from 'http-status';
+import { status } from '../httpStatus';
 import * as nock from 'nock';
-import * as client from '../index';
+import { ClientCredentialsClient } from './clientCredentialsClient';
 
 const DOMAIN = 'DOMAIN';
 const CLIENT_ID = 'CLIENT_ID';
@@ -32,9 +32,9 @@ describe('getToken()', () => {
     it('認可サーバーが正常であれば、認可コードとアクセストークンを交換できるはず', async () => {
         scope = nock(`https://${DOMAIN}`)
             .post('/token')
-            .reply(OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
+            .reply(status.OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
 
-        const auth = new client.auth.ClientCredentials({
+        const auth = new ClientCredentialsClient({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
@@ -51,13 +51,13 @@ describe('getToken()', () => {
         assert.equal(true, scope.isDone());
     });
 
-    [BAD_REQUEST, INTERNAL_SERVER_ERROR].forEach((statusCode) => {
+    [status.BAD_REQUEST, status.INTERNAL_SERVER_ERROR].forEach((statusCode) => {
         it(`認可サーバーが次のステータスコードを返却されば、トークンを取得できないはず  ${statusCode}`, async () => {
             scope = nock(`https://${DOMAIN}`)
                 .post('/token')
                 .reply(statusCode, {});
 
-            const auth = new client.auth.ClientCredentials({
+            const auth = new ClientCredentialsClient({
                 domain: DOMAIN,
                 clientId: CLIENT_ID,
                 clientSecret: CLIENT_SECRET,
@@ -89,9 +89,9 @@ describe('refreshAccessToken()', () => {
     it('認可サーバーが正常であれば、アクセストークンをリフレッシュできるはず', async () => {
         const scope = nock(`https://${DOMAIN}`)
             .post('/token')
-            .reply(OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
+            .reply(status.OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
 
-        const auth = new client.auth.ClientCredentials({
+        const auth = new ClientCredentialsClient({
             domain: DOMAIN,
             clientId: CLIENT_ID,
             clientSecret: CLIENT_SECRET,
