@@ -1,13 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/**
- * transporter test
- */
-import assert from 'assert';
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { status } from './httpStatus';
-// import * as fetch from 'isomorphic-fetch';
-import { } from 'mocha';
 import nock from 'nock';
-import * as sinon from 'sinon';
 
 import { DefaultTransporter, RequestError } from './transporters';
 
@@ -15,16 +9,13 @@ const API_ENDPOINT = 'https://example.com';
 
 describe('fetch()', () => {
     let scope: nock.Scope;
-    let sandbox: sinon.SinonSandbox;
 
     beforeEach(() => {
-        sandbox = sinon.createSandbox();
         nock.cleanAll();
         nock.disableNetConnect();
     });
 
     afterEach(() => {
-        sandbox.restore();
         nock.cleanAll();
         nock.enableNetConnect();
     });
@@ -41,9 +32,8 @@ describe('fetch()', () => {
 
             const result = await transporter.fetch(`${API_ENDPOINT}/uri`, {}, {})
                 .then(async (res) => res.json());
-            assert.deepEqual(result, body);
-            sandbox.verify();
-            assert(scope.isDone());
+            expect(result).toStrictEqual(body);
+            expect(scope.isDone()).toBeTruthy();
         });
     });
 
@@ -73,11 +63,10 @@ describe('fetch()', () => {
             const result = await transporter.fetch(`${API_ENDPOINT}/uri`, {}, {})
                 .catch((err) => err);
 
-            assert(result instanceof Error);
-            assert.equal((result as RequestError).code, statusCode);
-            assert.equal((result as RequestError).message, body.error.message);
-            sandbox.verify();
-            assert(scope.isDone());
+            expect(result).toBeInstanceOf(Error);
+            expect((result as RequestError).code).toBe(statusCode);
+            expect((result as RequestError).message).toBe(body.error.message);
+            expect(scope.isDone()).toBeTruthy();
         });
     });
 
@@ -93,9 +82,8 @@ describe('fetch()', () => {
         const result = await transporter
             .fetch(`${API_ENDPOINT}/uri`, {}, { timeout: 10000 })
             .then(async (res) => res.json());
-        assert.deepEqual(result, body);
-        sandbox.verify();
-        assert(scope.isDone());
+        expect(result).toStrictEqual(body);
+        expect(scope.isDone()).toBeTruthy();
     });
 
     it('レスポンスボディがjsonでなければ、適切なエラーが投げられるはず', async () => {
@@ -110,34 +98,23 @@ describe('fetch()', () => {
 
         const result = await transporter.fetch(`${API_ENDPOINT}/uri`, {}, {})
             .catch((err) => err);
-        assert(result instanceof Error);
-        assert.equal((result as RequestError).code, statusCode);
-        assert.equal((result as RequestError).message, body);
-        sandbox.verify();
-        assert(scope.isDone());
+        expect(result).toBeInstanceOf(Error);
+        expect((result as RequestError).code).toBe(statusCode);
+        expect((result as RequestError).message).toBe(body);
+        expect(scope.isDone()).toBeTruthy();
     });
 });
 
-describe('CONFIGURE()', () => {
-    let sandbox: sinon.SinonSandbox;
+// describe('CONFIGURE()', () => {
+//     // it('既存のUser-Agentヘッダーにパッケージ情報がなければ、ヘッダーに情報が追加されるはず', async () => {
+//     //     const options = {
+//     //         headers: {
+//     //             'User-Agent': 'useragent'
+//     //         }
+//     //     };
 
-    beforeEach(() => {
-        sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-        sandbox.restore();
-    });
-
-    // it('既存のUser-Agentヘッダーにパッケージ情報がなければ、ヘッダーに情報が追加されるはず', async () => {
-    //     const options = {
-    //         headers: {
-    //             'User-Agent': 'useragent'
-    //         }
-    //     };
-
-    //     const result = DefaultTransporter.CONFIGURE(options);
-    //     assert((<any>result.headers)['User-Agent'].indexOf(DefaultTransporter.USER_AGENT) > 0);
-    //     sandbox.verify();
-    // });
-});
+//     //     const result = DefaultTransporter.CONFIGURE(options);
+//     //     assert((<any>result.headers)['User-Agent'].indexOf(DefaultTransporter.USER_AGENT) > 0);
+//     //     sandbox.verify();
+//     // });
+// });

@@ -20,6 +20,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - update @types/node@22
 - reimplement using @surfrock/factory
 - tsconfig: esModuleInterop: true
+- support vitest
 
 ### Deprecated
 

@@ -1,8 +1,4 @@
-/**
- * clientCredentials client test
- * @ignore
- */
-import assert from 'assert';
+import { describe, beforeEach, afterEach, beforeAll, afterAll, it, expect } from 'vitest';
 import { status } from '../httpStatus';
 import nock from 'nock';
 import { ClientCredentialsClient } from './clientCredentialsClient';
@@ -16,7 +12,7 @@ const SCOPES = ['scopex', 'scopey'];
 describe('getToken()', () => {
     let scope: nock.Scope;
 
-    before(() => {
+    beforeAll(() => {
         nock.cleanAll();
     });
 
@@ -43,12 +39,11 @@ describe('getToken()', () => {
         });
 
         const credentials = await auth.getToken();
-        assert.equal(typeof credentials.access_token, 'string');
-        assert.equal(typeof credentials.refresh_token, 'string');
-        assert.equal(typeof credentials.expiry_date, 'number');
-        assert.equal(credentials.token_type, 'Bearer');
-
-        assert.equal(true, scope.isDone());
+        expect(credentials.access_token).toBeTypeOf('string');
+        expect(credentials.refresh_token).toBeTypeOf('string');
+        expect(credentials.expiry_date).toBeTypeOf('number');
+        expect(credentials.token_type).toBe('Bearer');
+        expect(scope.isDone()).toBeTruthy();
     });
 
     [status.BAD_REQUEST, status.INTERNAL_SERVER_ERROR].forEach((statusCode) => {
@@ -69,15 +64,14 @@ describe('getToken()', () => {
                 .catch((error) => {
                     return error;
                 });
-            assert(getTokenError instanceof Error);
-
-            assert.equal(true, scope.isDone());
+            expect(getTokenError).toBeInstanceOf(Error);
+            expect(scope.isDone()).toBeTruthy();
         });
     });
 });
 
 describe('refreshAccessToken()', () => {
-    before(() => {
+    beforeAll(() => {
         nock.cleanAll();
     });
 
@@ -100,15 +94,14 @@ describe('refreshAccessToken()', () => {
         });
 
         const credentials = await auth.refreshAccessToken();
-        assert.equal(typeof credentials.access_token, 'string');
-        assert.equal(typeof credentials.refresh_token, 'string');
-        assert.equal(typeof credentials.expiry_date, 'number');
-        assert.equal(credentials.token_type, 'Bearer');
-
-        assert.equal(true, scope.isDone());
+        expect(credentials.access_token).toBeTypeOf('string');
+        expect(credentials.refresh_token).toBeTypeOf('string');
+        expect(credentials.expiry_date).toBeTypeOf('number');
+        expect(credentials.token_type).toBe('Bearer');
+        expect(scope.isDone()).toBeTruthy();
     });
 
-    after(() => {
+    afterAll(() => {
         nock.cleanAll();
         nock.enableNetConnect();
     });

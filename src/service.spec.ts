@@ -1,11 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/**
- * service test
- */
-import assert from 'assert';
-import { } from 'mocha';
-// import * as querystring from 'querystring';
-import * as sinon from 'sinon';
+import { describe, it, vi, expect } from 'vitest';
 
 import { StubAuthClient } from './auth/authClient';
 import { Service } from './service';
@@ -26,16 +20,6 @@ class StubTransporter implements Transporter {
 const API_ENDPOINT = 'https://example.com';
 
 describe('fetch()', () => {
-    let sandbox: sinon.SinonSandbox;
-
-    beforeEach(() => {
-        sandbox = sinon.createSandbox();
-    });
-
-    afterEach(() => {
-        sandbox.restore();
-    });
-
     it('認証クライアントが正常であれば、レスポンスを取得できるはず', async () => {
         const response: any = { key: 'value' };
 
@@ -48,15 +32,12 @@ describe('fetch()', () => {
             { timeout: 10000 }
         );
 
-        sandbox.mock(service.options.auth)
-            .expects('fetch')
-            .once()
-            .resolves(response);
+        const fetchSpy = vi.spyOn(auth, 'fetch').mockResolvedValue(response);
 
         const result = await service.fetch({} as any);
 
-        assert.deepEqual(result, response);
-        sandbox.verify();
+        expect(result).toEqual(response);
+        expect(fetchSpy).toHaveBeenCalledOnce();
     });
 
     it('認証不要な場合、transporterが正常であれば、レスポンスを取得できるはず', async () => {
@@ -68,66 +49,8 @@ describe('fetch()', () => {
         });
 
         const result = await service.fetch({} as any);
-        assert.deepEqual(await result.json(), JSON.parse(response));
-        sandbox.verify();
+        expect(await result.json()).toEqual(JSON.parse(response));
     });
-
-    // it('クエリパラメータをオプションとして渡すと、リクエストURLにクエリ文字列が付加されるはず', async () => {
-    //     const options = {
-    //         uri: '/uri',
-    //         qs: {
-    //             key: 'value',
-    //             key2: 'value2'
-    //         }
-    //     };
-    //     const response: any = { key: 'value' };
-    //     const querystrings = querystring.stringify(options.qs);
-
-    //     const auth = new StubAuthClient();
-    //     const service = new Service({
-    //         auth: auth,
-    //         endpoint: API_ENDPOINT
-    //     });
-
-    //     sandbox.mock(service.options.auth)
-    //         .expects('fetch')
-    //         .once()
-    //         .withArgs(sinon.match(new RegExp(`\\?${querystrings}$`)))
-    //         .resolves(response);
-
-    //     const result = await service.fetch(<any>options);
-    //     assert.deepEqual(result, response);
-    //     sandbox.verify();
-    // });
-
-    // it('Date型のクエリパラメータを渡すと、リクエストURLにISO 8601形式文字列が付加されるはず', async () => {
-    //     const now = new Date();
-    //     const options = {
-    //         uri: '/uri',
-    //         qs: {
-    //             now: now
-    //         }
-    //     };
-    //     const response: any = { key: 'value' };
-    //     const querystrings = `now=${encodeURIComponent(now.toISOString())}`;
-
-    //     const auth = new StubAuthClient();
-    //     const service = new Service({
-    //         auth: auth,
-    //         endpoint: API_ENDPOINT
-    //     });
-
-    //     sandbox.mock(service.options.auth)
-    //         .expects('fetch')
-    //         .once()
-    //         .withArgs(sinon.match(new RegExp(`\\?${querystrings}$`)))
-    //         .resolves(response);
-
-    //     const result = await service.fetch(<any>options);
-
-    //     assert.deepEqual(result, response);
-    //     sandbox.verify();
-    // });
 
     it('authオプションもtransporterオプションも未定義であれば、内部的にDefaultTransporterインスタンスが生成されてfetchメソッドが呼ばれるはず', async () => {
         const options = {};
@@ -135,11 +58,9 @@ describe('fetch()', () => {
             endpoint: API_ENDPOINT
         });
 
-        sandbox.mock(DefaultTransporter.prototype)
-            .expects('fetch')
-            .once();
+        const fetchSpy = vi.spyOn(DefaultTransporter.prototype, 'fetch').mockResolvedValue({} as any);
 
         await service.fetch(options as any);
-        sandbox.verify();
+        expect(fetchSpy).toHaveBeenCalledOnce();
     });
 });

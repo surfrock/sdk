@@ -1,10 +1,7 @@
-/**
- * OAuth2 client test
- */
-import assert from 'assert';
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { describe, beforeEach, afterEach, beforeAll, afterAll, it, vi, expect } from 'vitest';
 import { status } from '../httpStatus';
 import nock from 'nock';
-import * as sinon from 'sinon';
 import { AbstractCredentialsRepo } from '../auth/repo/credentials';
 import { OAuth2client } from './oAuth2client';
 
@@ -34,138 +31,6 @@ const REDIRECT_URI = 'REDIRECT_URI';
 // const STATE = 'state';
 // const CODE_VERIFIER = 'codeVerifier';
 // const SCOPES = ['scopex', 'scopey'];
-let sandbox: sinon.SinonSandbox;
-
-before(() => {
-    sandbox = sinon.createSandbox();
-});
-
-// describe('generateAuthUrl()', () => {
-//     it('有効な認可ページURLが生成されるはず', () => {
-//         const opts = {
-//             scopes: SCOPES,
-//             responseType: 'code',
-//             state: STATE
-//         };
-//         const auth = new client.auth.OAuth2({
-//             domain: DOMAIN,
-//             clientId: CLIENT_ID,
-//             clientSecret: CLIENT_SECRET,
-//             redirectUri: REDIRECT_URI
-//         });
-
-//         const generated = auth.generateAuthUrl(opts);
-//         const parsed = url.parse(generated);
-//         const query = qs.parse(<string>parsed.query);
-
-//         assert.equal(query.response_type, opts.responseType);
-//         assert.equal(query.scope, SCOPES.join(' '));
-//         assert.equal(query.client_id, CLIENT_ID);
-//         assert.equal(query.redirect_uri, REDIRECT_URI);
-//     });
-
-//     it('検証コードがセットされれば、有効な認可ページURLにcode_challenge_methodとcode_challengeパラメータがセットされるはず', () => {
-//         const opts = {
-//             scopes: SCOPES,
-//             responseType: 'code',
-//             state: STATE,
-//             codeVerifier: CODE_VERIFIER
-//         };
-//         const auth = new client.auth.OAuth2({
-//             domain: DOMAIN,
-//             clientId: CLIENT_ID,
-//             clientSecret: CLIENT_SECRET,
-//             redirectUri: REDIRECT_URI
-//         });
-
-//         const generated = auth.generateAuthUrl(opts);
-//         const parsed = url.parse(generated);
-//         const query = qs.parse(<string>parsed.query);
-
-//         assert.equal(typeof query.code_challenge_method, 'string');
-//         assert.equal(typeof query.code_challenge, 'string');
-//     });
-// });
-
-// describe('generateLogoutUrl()', () => {
-//     it('有効なログアウトページURLが生成されるはず', () => {
-//         const auth = new client.auth.OAuth2({
-//             domain: DOMAIN,
-//             clientId: CLIENT_ID,
-//             clientSecret: CLIENT_SECRET,
-//             redirectUri: REDIRECT_URI,
-//             logoutUri: LOGOUT_URI
-//         });
-
-//         const generated = auth.generateLogoutUrl();
-//         const parsed = url.parse(generated);
-//         const query = qs.parse(<string>parsed.query);
-
-//         assert.equal(query.client_id, CLIENT_ID);
-//         assert.equal(query.logout_uri, LOGOUT_URI);
-//     });
-// });
-
-// describe('getToken()', () => {
-//     let scope: nock.Scope;
-
-//     before(() => {
-//         nock.cleanAll();
-//     });
-
-//     beforeEach(() => {
-//         nock.cleanAll();
-//         nock.disableNetConnect();
-//     });
-
-//     afterEach(() => {
-//         nock.cleanAll();
-//     });
-
-//     it('認可サーバーが正常であれば、認可コードとアクセストークンを交換できるはず', async () => {
-//         scope = nock(`https://${DOMAIN}`)
-//             .post('/token')
-//             .reply(OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
-
-//         const auth = new client.auth.OAuth2({
-//             domain: DOMAIN,
-//             clientId: CLIENT_ID,
-//             clientSecret: CLIENT_SECRET,
-//             redirectUri: REDIRECT_URI
-//         });
-
-//         const credentials = await auth.getToken('', '');
-//         assert.equal(typeof credentials.access_token, 'string');
-//         assert.equal(typeof credentials.refresh_token, 'string');
-//         assert.equal(typeof credentials.expiry_date, 'number');
-//         assert.equal(credentials.token_type, 'Bearer');
-
-//         assert(scope.isDone());
-//     });
-
-//     [BAD_REQUEST, INTERNAL_SERVER_ERROR].forEach((statusCode) => {
-//         it(`認可サーバーが次のステータスコードを返却されば、トークンを取得できないはず  ${statusCode}`, async () => {
-//             scope = nock(`https://${DOMAIN}`)
-//                 .post('/token')
-//                 .reply(statusCode, {});
-
-//             const auth = new client.auth.OAuth2({
-//                 domain: DOMAIN,
-//                 clientId: CLIENT_ID,
-//                 clientSecret: CLIENT_SECRET,
-//                 redirectUri: REDIRECT_URI
-//             });
-
-//             const getTokenError = await auth.getToken('', '')
-//                 .catch((error) => {
-//                     return error;
-//                 });
-//             assert(getTokenError instanceof Error);
-
-//             assert(scope.isDone());
-//         });
-//     });
-// });
 
 describe('setCredentials()', () => {
     it('認証情報を正しくセットできる', async () => {
@@ -183,17 +48,16 @@ describe('setCredentials()', () => {
         });
 
         const accessToken = await auth.getAccessToken();
-        assert.equal(accessToken, 'access_token');
+        expect(accessToken).toBe('access_token');
     });
 });
 
 describe('refreshAccessToken()', () => {
-    before(() => {
+    beforeAll(() => {
         nock.cleanAll();
     });
 
     beforeEach(() => {
-        sandbox.restore();
         nock.cleanAll();
         nock.disableNetConnect();
     });
@@ -210,7 +74,7 @@ describe('refreshAccessToken()', () => {
             .catch((error) => {
                 return error;
             });
-        assert(refreshAccessTokenError instanceof Error);
+        expect(refreshAccessTokenError).toBeInstanceOf(Error);
     });
 
     [status.BAD_REQUEST, status.INTERNAL_SERVER_ERROR].forEach((statusCode) => {
@@ -234,9 +98,8 @@ describe('refreshAccessToken()', () => {
                 .catch((error) => {
                     return error;
                 });
-            assert(refreshAccessTokenError instanceof Error);
-
-            assert(scope.isDone());
+            expect(refreshAccessTokenError).toBeInstanceOf(Error);
+            expect(scope.isDone()).toBeTruthy();
         });
     });
 
@@ -245,10 +108,8 @@ describe('refreshAccessToken()', () => {
             .post('/token')
             .reply(status.OK, { access_token: 'abc123', refresh_token: 'abc123', expires_in: 1000, token_type: 'Bearer' });
         const credentialsRepo = new StubCredentialsRepo();
-        sandbox.mock(credentialsRepo)
-            .expects('save')
-            .once()
-            .resolves();
+
+        const saveSpy = vi.spyOn(credentialsRepo, 'save').mockResolvedValue();
         const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
@@ -258,8 +119,8 @@ describe('refreshAccessToken()', () => {
         });
         auth.setCredentials({ refresh_token: 'ignore' });
         await auth.refreshAccessToken();
-        assert(scope.isDone());
-        sandbox.verify();
+        expect(scope.isDone()).toBeTruthy();
+        expect(saveSpy).toHaveBeenCalledOnce();
     });
 
     // it('リフレッシュトークンがあればアクセストークンを取得できるはず', async () => {
@@ -430,19 +291,18 @@ describe('refreshAccessToken()', () => {
     //     });
     // });
 
-    after(() => {
+    afterAll(() => {
         nock.cleanAll();
         nock.enableNetConnect();
     });
 });
 
 describe('getAccessToken()', () => {
-    before(() => {
+    beforeAll(() => {
         nock.cleanAll();
     });
 
     beforeEach(() => {
-        sandbox.restore();
         nock.cleanAll();
         nock.disableNetConnect();
     });
@@ -459,20 +319,17 @@ describe('getAccessToken()', () => {
             .catch((error) => {
                 return error;
             });
-        assert(transferError instanceof Error);
+        expect(transferError).toBeInstanceOf(Error);
     });
 
     it('認証情報リポジトリをセットすれば、リポジトリから検索するはず', async () => {
         const credentialsRepo = new StubCredentialsRepo();
-        sandbox.mock(credentialsRepo)
-            .expects('find')
-            .once()
-            .resolves({
-                token_type: 'Bearer',
-                expiry_date: 2732084594461,
-                refresh_token: 'ignored',
-                access_token: 'xxx'
-            });
+        const findSpy = vi.spyOn(credentialsRepo, 'find').mockResolvedValue({
+            token_type: 'Bearer',
+            expiry_date: 2732084594461,
+            refresh_token: 'ignored',
+            access_token: 'xxx'
+        });
         const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
@@ -480,21 +337,21 @@ describe('getAccessToken()', () => {
             redirectUri: REDIRECT_URI,
             credentialsRepo
         });
-        sandbox.mock(auth)
-            .expects('refreshAccessToken')
-            .never();
+        const refreshAccessTokenSpy = vi.spyOn(auth, 'refreshAccessToken').mockResolvedValue({
+            token_type: 'Bearer',
+            expiry_date: 2732084594461,
+            refresh_token: 'ignored',
+            access_token: 'xxx'
+        });
 
         const result = await auth.getAccessToken();
-        assert(typeof result === 'string');
-        sandbox.verify();
+        expect(result).toBeTypeOf('string');
+        expect(findSpy).toHaveBeenCalledOnce();
+        expect(refreshAccessTokenSpy).not.toHaveBeenCalled();
     });
 
     it('リモートリポジトリに認証情報が存在しなければトークンを発行する', async () => {
         const credentialsRepo = new StubCredentialsRepo();
-        sandbox.mock(credentialsRepo)
-            .expects('find')
-            .once()
-            .resolves(undefined);
         const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
@@ -503,31 +360,22 @@ describe('getAccessToken()', () => {
             credentialsRepo
         });
         auth.setCredentials({ refresh_token: 'ignore' });
-        sandbox.mock(auth)
-            .expects('refreshAccessToken')
-            .once()
-            .resolves({
-                token_type: 'Bearer',
-                expiry_date: 2732084594461,
-                refresh_token: 'ignored',
-                access_token: 'xxx'
-            });
+
+        const findSpy = vi.spyOn(credentialsRepo, 'find').mockResolvedValue(undefined as any);
+        const refreshAccessTokenSpy = vi.spyOn(auth, 'refreshAccessToken').mockResolvedValue({
+            token_type: 'Bearer',
+            expiry_date: 2732084594461,
+            refresh_token: 'ignored',
+            access_token: 'xxx'
+        });
 
         await auth.getAccessToken();
-        sandbox.verify();
+        expect(findSpy).toHaveBeenCalledOnce();
+        expect(refreshAccessTokenSpy).toHaveBeenCalledOnce();
     });
 
     it('万が一リモートリポジトリからの情報にアクセストークンが含まれなければ採用しない', async () => {
         const credentialsRepo = new StubCredentialsRepo();
-        sandbox.mock(credentialsRepo)
-            .expects('find')
-            .once()
-            .resolves({
-                token_type: 'Bearer',
-                expiry_date: 2732084594461,
-                refresh_token: 'ignored'
-                // access_token: 'xxx' // <-アクセストークンが含まれない
-            });
         const auth = new OAuth2client({
             domain: DOMAIN,
             clientId: CLIENT_ID,
@@ -536,21 +384,26 @@ describe('getAccessToken()', () => {
             credentialsRepo
         });
         auth.setCredentials({ refresh_token: 'ignore' });
-        sandbox.mock(auth)
-            .expects('refreshAccessToken')
-            .once()
-            .resolves({
-                token_type: 'Bearer',
-                expiry_date: 2732084594461,
-                refresh_token: 'ignored',
-                access_token: 'xxx'
-            });
+
+        const findSpy = vi.spyOn(credentialsRepo, 'find').mockResolvedValue({
+            token_type: 'Bearer',
+            expiry_date: 2732084594461,
+            refresh_token: 'ignored'
+            // access_token: 'xxx' // <-アクセストークンが含まれない
+        } as any);
+        const refreshAccessTokenSpy = vi.spyOn(auth, 'refreshAccessToken').mockResolvedValue({
+            token_type: 'Bearer',
+            expiry_date: 2732084594461,
+            refresh_token: 'ignored',
+            access_token: 'xxx'
+        });
 
         await auth.getAccessToken();
-        sandbox.verify();
+        expect(findSpy).toHaveBeenCalledOnce();
+        expect(refreshAccessTokenSpy).toHaveBeenCalledOnce();
     });
 
-    after(() => {
+    afterAll(() => {
         nock.cleanAll();
         nock.enableNetConnect();
     });
@@ -584,7 +437,7 @@ describe('fetch()', () => {
         auth.credentials = { refresh_token: 'refresh-token-placeholder' };
 
         await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [status.OK]);
-        assert.equal('abc123', auth.credentials.access_token);
+        expect(auth.credentials.access_token).toBe('abc123');
     });
 
     it('アクセストークンの期限が切れていればリフレッシュされるはず', async () => {
@@ -602,7 +455,7 @@ describe('fetch()', () => {
         };
 
         await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [status.OK]);
-        assert.equal('abc123', auth.credentials.access_token);
+        expect(auth.credentials.access_token).toBe('abc123');
 
     });
 
@@ -621,7 +474,7 @@ describe('fetch()', () => {
         };
 
         await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [status.OK]);
-        assert.equal('initial-access-token', auth.credentials.access_token);
+        expect(auth.credentials.access_token).toBe('initial-access-token');
     });
 
     it('アクセストークンの期限が設定されていなければ、期限は切れていないとみなすはず', async () => {
@@ -638,8 +491,8 @@ describe('fetch()', () => {
         };
 
         await auth.fetch(`${API_ENDPOINT}/`, { method: 'GET' }, {}, [status.OK]);
-        assert.equal('initial-access-token', auth.credentials.access_token);
-        assert(!scope.isDone());
+        expect(auth.credentials.access_token).toBe('initial-access-token');
+        expect(scope.isDone()).toBeFalsy();
     });
 
     [status.UNAUTHORIZED, status.FORBIDDEN].forEach((statusCode) => {
@@ -662,8 +515,8 @@ describe('fetch()', () => {
             };
 
             await auth.fetch(`${API_ENDPOINT}/access`, { method: 'GET' }, {}, [status.OK]).catch((err) => err);
-            assert.equal(auth.credentials.access_token, 'abc123');
-            assert(scope.isDone());
+            expect(auth.credentials.access_token).toBe('abc123');
+            expect(scope.isDone()).toBeTruthy();
         });
     });
 
@@ -682,7 +535,7 @@ describe('fetch()', () => {
             auth.credentials = { refresh_token: 'refresh-token-placeholder' };
 
             await auth.fetch(`${API_ENDPOINT}/`, options, {}, [status.OK]);
-            assert.equal('abc123', auth.credentials.access_token);
+            expect(auth.credentials.access_token).toBe('abc123');
         });
     });
 });

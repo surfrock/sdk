@@ -1,11 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/**
- * Seat service test
- */
-import assert from 'assert';
+import { describe, beforeEach, afterEach, it, expect } from 'vitest';
 import { status } from '../httpStatus';
-import { } from 'mocha';
-import * as sinon from 'sinon';
 import { MockAgent, setGlobalDispatcher } from 'undici';
 import { SeatService } from './seat';
 
@@ -14,13 +9,10 @@ import { StubAuthClient } from '../auth/authClient';
 const API_ENDPOINT = 'https://localhost';
 
 describe('着券サービス', () => {
-    let sandbox: sinon.SinonSandbox;
     let mockAgent: MockAgent;
     let mockPool: any;
 
     beforeEach(() => {
-        sandbox = sinon.createSandbox();
-
         // 1. MockAgent の初期化
         mockAgent = new MockAgent();
         mockAgent.disableNetConnect(); // 実際の通信を遮断
@@ -30,7 +22,6 @@ describe('着券サービス', () => {
         mockPool = mockAgent.get(API_ENDPOINT);
     });
     afterEach(() => {
-        sandbox.restore();
         // 未実行のモックがないか検証
         mockAgent.assertNoPendingInterceptors();
     });
@@ -47,8 +38,7 @@ describe('着券サービス', () => {
             path: (p: string) => p.includes('/seat/seatInfoSync')
         }).reply(status.OK, data);
         const result = await seatService.seatInfoSync({} as any);
-        assert.deepEqual(result, data);
-        sandbox.verify();
+        expect(result).toStrictEqual(data);
     });
 
     it('座席解放結果が期待通り', async () => {
@@ -63,7 +53,6 @@ describe('着券サービス', () => {
             path: (p: string) => p.includes('/seat/seatInfoSyncCancel')
         }).reply(status.OK, data);
         const result = await seatService.seatInfoSyncCancel({} as any);
-        assert.deepEqual(result, data);
-        sandbox.verify();
+        expect(result).toStrictEqual(data);
     });
 });

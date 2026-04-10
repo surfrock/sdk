@@ -46,7 +46,7 @@ main().catch((error) => {
                 const mvtkReserveServiceError = error.errors[0];
                 if (mvtkReserveServiceError.status === client.factory.resultInfo.ResultStatus.Success) {
                     const cnclResult = mvtkReserveServiceError.rawResult?.cnclResult;
-                    if (cnclResult === client.service.seat.factory.seatInfoSyncCancel.CancelResult.CancelResult02) {
+                    if (cnclResult === client.factory.service.seat.seatInfoSyncCancel.CancelResult.CancelResult02) {
                         console.log('興行会社システム座席予約番号存在無の場合、取消済なのでok');
                     }
                 }

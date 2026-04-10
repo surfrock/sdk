@@ -9,16 +9,15 @@
   ],
   "scripts": {
     "build": "tsc",
+    "check:all": "npm run clean && npm run build && npm test",
     "clean": "rimraf ./lib \"npm-debug.log*\" ./docs ./coverage ./.nyc_output",
-    "mocha": "mocha",
-    "nyc": "nyc mocha \"src/**/*.spec.ts\"",
-    "coverage": "npm run nyc && nyc report --reporter=text-summary",
+    "coverage": "vitest run --coverage",
     "test": "npm run eslint && npm run coverage",
     "eslint": "eslint src/**/*.ts",
-    "preversion": "npm run clean && npm run build && npm test",
+    "preversion": "npm run check:all",
     "version": "git add -A",
     "postversion": "git push origin --tags",
-    "prepublishOnly": "npm run clean && npm run build && npm test"
+    "prepublishOnly": "npm run clean && npm run build"
   },
   "repository": {
     "type": "git",
@@ -36,21 +35,18 @@
   "license": "UNLICENSED",
   "devDependencies": {
     "@eslint/js": "9.39.4",
-    "@types/debug": "0.0.30",
-    "@types/mocha": "^5.2.5",
+    "@types/debug": "4.1.13",
     "@types/node": "22.19.15",
-    "@types/sinon": "^5.0.5",
+    "@vitest/coverage-v8": "4.1.4",
+    "@vitest/ui": "4.1.4",
     "eslint": "9.39.4",
-    "mocha": "^5.2.0",
     "nock": "14.0.7",
-    "nyc": "15.1.0",
     "redis": "4.7.0",
     "rimraf": "^2.6.2",
-    "sinon": "^6.3.5",
-    "ts-node": "^7.0.1",
     "typescript": "5.6.3",
     "typescript-eslint": "8.58.0",
-    "undici": "7.24.6"
+    "undici": "7.24.6",
+    "vitest": "4.1.4"
   },
   "dependencies": {
     "@surfrock/factory": "1.0.0",
