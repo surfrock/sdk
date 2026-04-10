@@ -2,7 +2,7 @@
  * transporters
  */
 import { SurfrockFactory } from '@surfrock/factory';
-import * as createDebug from 'debug';
+import createDebug from 'debug';
 
 const debug = createDebug('surfrock-sdk:transporters');
 

@@ -1,12 +1,9 @@
-import * as createDebug from 'debug';
 import { status } from '../httpStatus';
 import * as querystring from 'querystring';
 
 import { fetchWithTimeout } from '../transporters';
 import { ICredentials } from './credentials';
 import { DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS, IOptions as IOAuth2clientOptions, OAuth2client } from './oAuth2client';
-
-const debug = createDebug('surfrock-sdk:auth');
 
 export type IOptions = Pick<IOAuth2clientOptions, 'domain' | 'credentialsRepo'> & {
     clientId: string;
@@ -34,7 +31,6 @@ export class ClientCredentialsClient extends OAuth2client {
      * クライアント認証でアクセストークンを取得します。
      */
     public async getToken(): Promise<ICredentials> {
-        debug('requesting an access token...');
         const form = {
             scope: this.options.scopes.join(' '),
             state: this.options.state,
@@ -51,15 +47,12 @@ export class ClientCredentialsClient extends OAuth2client {
             }
         };
 
-        debug('fetching...', options);
-
         // timeout設定(2022-12-03~)
         return fetchWithTimeout(
             `https://${this.options.domain}${OAuth2client.OAUTH2_TOKEN_URI}`,
             options,
             { timeout: DEFAULT_TIMEOUT_GET_TOKEN_IN_MILLISECONDS }
         ).then(async (response) => {
-            debug('response:', response.status);
             if (response.status !== status.OK) {
                 if (response.status === status.BAD_REQUEST) {
                     const body = await response.json() as { error?: string };
@@ -87,8 +80,6 @@ export class ClientCredentialsClient extends OAuth2client {
      * Refreshes the access token.
      */
     protected async refreshToken(__: string): Promise<ICredentials> {
-        debug('refreshing an access token...');
-
         return this.getToken();
     }
 }

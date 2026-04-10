@@ -19,6 +19,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 - update debug@4
 - update @types/node@22
 - reimplement using @surfrock/factory
+- tsconfig: esModuleInterop: true
 
 ### Deprecated
 

@@ -1,9 +1,9 @@
 /**
  * OAuth2 client test
  */
-import * as assert from 'assert';
+import assert from 'assert';
 import { status } from '../httpStatus';
-import * as nock from 'nock';
+import nock from 'nock';
 import * as sinon from 'sinon';
 import { AbstractCredentialsRepo } from '../auth/repo/credentials';
 import { OAuth2client } from './oAuth2client';

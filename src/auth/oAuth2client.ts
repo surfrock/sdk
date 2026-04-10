@@ -1,7 +1,7 @@
 /**
  * OAuth2クライアント
  */
-import * as createDebug from 'debug';
+import createDebug from 'debug';
 import { status } from '../httpStatus';
 import * as querystring from 'querystring';
 
@@ -210,8 +210,6 @@ export class OAuth2client implements AuthClient {
                 'Content-Type': 'application/x-www-form-urlencoded'
             }
         };
-
-        debug('fetching...', options);
 
         // timeout設定(2022-12-03~)
         return fetchWithTimeout(

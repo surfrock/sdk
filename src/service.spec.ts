@@ -2,7 +2,7 @@
 /**
  * service test
  */
-import * as assert from 'assert';
+import assert from 'assert';
 import { } from 'mocha';
 // import * as querystring from 'querystring';
 import * as sinon from 'sinon';

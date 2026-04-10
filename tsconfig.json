@@ -6,6 +6,7 @@
         "diagnostics": false,
         "disableSizeLimit": false,
         "emitDecoratorMetadata": true,
+        "esModuleInterop": true,
         "exactOptionalPropertyTypes": true,
         "experimentalDecorators": true,
         "forceConsistentCasingInFileNames": true,

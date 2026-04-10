@@ -2,9 +2,9 @@
  * clientCredentials client test
  * @ignore
  */
-import * as assert from 'assert';
+import assert from 'assert';
 import { status } from '../httpStatus';
-import * as nock from 'nock';
+import nock from 'nock';
 import { ClientCredentialsClient } from './clientCredentialsClient';
 
 const DOMAIN = 'DOMAIN';

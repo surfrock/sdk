@@ -2,7 +2,7 @@
 /**
  * Auth service test
  */
-import * as assert from 'assert';
+import assert from 'assert';
 import { status } from '../httpStatus';
 import { } from 'mocha';
 import * as sinon from 'sinon';

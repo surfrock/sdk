@@ -2,11 +2,11 @@
 /**
  * transporter test
  */
-import * as assert from 'assert';
+import assert from 'assert';
 import { status } from './httpStatus';
 // import * as fetch from 'isomorphic-fetch';
 import { } from 'mocha';
-import * as nock from 'nock';
+import nock from 'nock';
 import * as sinon from 'sinon';
 
 import { DefaultTransporter, RequestError } from './transporters';
